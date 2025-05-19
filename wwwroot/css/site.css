@@ -1,0 +1,35 @@
+body {
+  background-color: #222831;
+  color: #EEEEEE;
+  font-family: "Segoe UI", sans-serif;
+}
+
+#landingPage .nav-tabs {
+  background-color: #393E46;
+  border-bottom: none;
+}
+#landingPage .nav-tabs .nav-link {
+  color: #EEEEEE;
+  border: none;
+}
+#landingPage .nav-tabs .nav-link.active {
+  background-color: #00ADB5;
+  color: #222831;
+}
+#landingPage .custom-card {
+  background-color: #393E46;
+  color: #EEEEEE;
+}
+#landingPage .form-label,
+#landingPage .form-control {
+  color: #EEEEEE;
+}
+#landingPage .btn-primary {
+  background-color: #00ADB5;
+  color: #222831;
+  border: none;
+}
+#landingPage .btn-primary:hover {
+  background-color: #00cfd9;
+  box-shadow: 0 0 10px #00ADB5;
+}

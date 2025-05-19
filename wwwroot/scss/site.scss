@@ -1,0 +1,53 @@
+﻿// site.scss
+
+// Variables (you can expand this later)
+$primary-bg: #222831;
+$card-bg: #393E46;
+$accent-color: #00ADB5;
+$accent-hover: #00cfd9;
+$text-color: #EEEEEE;
+$font-main: 'Segoe UI', sans-serif;
+
+body {
+    background-color: $primary-bg;
+    color: $text-color;
+    font-family: $font-main;
+}
+
+#landingPage {
+    .nav-tabs {
+        background-color: $card-bg;
+        border-bottom: none;
+
+        .nav-link {
+            color: $text-color;
+            border: none;
+
+            &.active {
+                background-color: $accent-color;
+                color: $primary-bg;
+            }
+        }
+    }
+
+    .custom-card {
+        background-color: $card-bg;
+        color: $text-color;
+    }
+
+    .form-label,
+    .form-control {
+        color: $text-color;
+    }
+
+    .btn-primary {
+        background-color: $accent-color;
+        color: $primary-bg;
+        border: none;
+
+        &:hover {
+            background-color: $accent-hover;
+            box-shadow: 0 0 10px $accent-color;
+        }
+    }
+}

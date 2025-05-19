@@ -1,0 +1,28 @@
+# Ignore Visual Studio temporary files, build results, and
+# user-specific files
+.vs/
+*.user
+*.suo
+
+# Ignore build results
+bin/
+obj/
+
+# Ignore Rider project files
+.idea/
+
+# ASP.NET Core generated files
+wwwroot/lib/
+node_modules/
+dist/
+
+# Others
+*.log
+*.db
+.env
+*.sass-cache/
+*.scssc
+
+# Mac & Windows system files
+.DS_Store
+Thumbs.db

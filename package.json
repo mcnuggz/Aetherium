@@ -1,0 +1,16 @@
+{
+  "name": "aetherium",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build-css": "sass wwwroot/scss/site.scss wwwroot/css/site.css --no-source-map",
+    "watch-css": "sass --watch wwwroot/scss/site.scss:wwwroot/css/site.css --no-source-map"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "sass": "^1.89.0"
+  }
+}
