@@ -3,6 +3,7 @@
 .vs/
 *.user
 *.suo
+secrets.json
 
 # Ignore build results
 bin/
@@ -26,3 +27,6 @@ dist/
 # Mac & Windows system files
 .DS_Store
 Thumbs.db
+
+# Ignore environment specific settings
+appsettings.Development.json
