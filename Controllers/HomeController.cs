@@ -34,6 +34,11 @@ namespace Aetherium.Controllers
                 ModelState.AddModelError("", "Invalid login attempt");
                 return View("Index", model);
             }
+            if (user.IsIPBanned)
+            {
+                ModelState.AddModelError("", "User is IP Banned");
+                return View("Index", model);
+            }
             HttpContext.Session.SetInt32("UserId", user.Id);
             HttpContext.Session.SetString("UserRole", user.Role.ToString());
             return RedirectToAction("Index", "Dashboard");
