@@ -193,6 +193,12 @@ namespace Aetherium.Controllers
                 return View(model);
             }
 
+            if (user.PasswordResetTokenExpiration < DateTime.UtcNow)
+            {
+                ModelState.AddModelError("", "Your reset token has expired. Please request a new one.");
+                return View(model);
+            }
+
             var hasher = new PasswordHasher<UserModel>();
             user.PasswordHash = hasher.HashPassword(user, model.Password);
             user.PasswordResetToken = null;
