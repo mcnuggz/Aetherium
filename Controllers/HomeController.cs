@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using System.Net;
-using System.Net.Mail;
 using System.Security.Cryptography;
 
 namespace Aetherium.Controllers
@@ -16,12 +14,14 @@ namespace Aetherium.Controllers
     public class HomeController : Controller
     {
         private readonly SmtpEmailService _emailService;
+        private readonly UserService _userService;
         private readonly ApplicationDbContext _context;
 
-        public HomeController(ApplicationDbContext context, SmtpEmailService emailService)
+        public HomeController(ApplicationDbContext context, SmtpEmailService emailService, UserService userService)
         {
             _context = context;
             _emailService = emailService;
+            _userService = userService;
         }
 
         public IActionResult Index()
@@ -30,9 +30,19 @@ namespace Aetherium.Controllers
         }
 
         [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult ResetPassword(string email, string token)
         {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token)) {
+                return RedirectToAction("Login");
+            }
             var model = new ResetPasswordViewModel { Email = email, Token = token };
+
             return View(model);
         }
 
@@ -50,11 +60,28 @@ namespace Aetherium.Controllers
             user.TokenGeneratedAt = null;
 
             _context.SaveChanges();
-            return RedirectToAction("EmailConfirmed");
+            HttpContext.Session.SetInt32("UserId", user.Id);
+            HttpContext.Session.SetString("UserRole", user.Role.ToString());
+
+            return RedirectToAction("CodeOfConduct");
+        }
+
+        [HttpGet]
+        public IActionResult CodeOfConduct()
+        {
+            var userId = _userService.GetUserId();
+            if (userId == null) { return RedirectToAction("Index"); }
+
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null || user.AgreedToCoC)
+            {
+                return RedirectToAction("Create", "Character");
+            }
+            return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LandingPageViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -63,9 +90,9 @@ namespace Aetherium.Controllers
 
             var ipAddress = GetClientIP();
 
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == model.Email);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == model.Login.Email);
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash)) {
+            if (user == null || !BCrypt.Net.BCrypt.Verify(model.Login.Password, user.PasswordHash)) {
                 ModelState.AddModelError("", "Invalid login attempt");
                 return View("Index", model);
             }
@@ -93,21 +120,22 @@ namespace Aetherium.Controllers
                     _context.SaveChanges();
                 }
             }
-            HttpContext.Session.SetInt32("UserId", user.Id);
-            HttpContext.Session.SetString("UserRole", user.Role.ToString());
+
+            _userService.SetUserId(user.Id, model.Login.RememberMe, user.Role.ToString());
+            
             return RedirectToAction("Index", "Dashboard");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Register(RegisterViewModel model) {
+        public IActionResult Register(LandingPageViewModel model) {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
             string ipAddress = GetClientIP();
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(model.Register.Password);
             int registrationsToday = _context.Users.Count(u => u.LastKnownIP == ipAddress && u.CreatedAt.Date == DateTime.UtcNow.Date);
             var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 
@@ -117,7 +145,7 @@ namespace Aetherium.Controllers
                 return View(model);
             }
 
-            if (_context.Users.Any(u => u.Email == model.Email))
+            if (_context.Users.Any(u => u.Email == model.Register.Email))
             {
                 ModelState.AddModelError(string.Empty, "Email or Username is already taken.");
                 return View(model);
@@ -131,7 +159,7 @@ namespace Aetherium.Controllers
 
             var newUser = new UserModel
             {
-                Email = model.Email,
+                Email = model.Register.Email,
                 PasswordHash = passwordHash,
                 Role = UserRoleEnum.User,
                 IsSuspended = false,
@@ -146,7 +174,7 @@ namespace Aetherium.Controllers
             HttpContext.Session.SetInt32("UserId", newUser.Id);
             HttpContext.Session.SetString("UserRole", newUser.Role.ToString());
 
-            var confirmUrl = Url.Action("ConfirmEmail", "Home", new { email = model.Email, Token = token }, Request.Scheme);
+            var confirmUrl = Url.Action("ConfirmEmail", "Home", new { email = model.Register.Email, Token = token }, Request.Scheme);
             _emailService.SendEmail(newUser.Email, "Confirm Your Account", $"<div style='text-align: center;'>Please confirm your account by clicking this link: <a href='{confirmUrl}'>Confirm Email</a><br /></div>");
 
             return RedirectToAction("Index", "Home");
@@ -178,7 +206,8 @@ namespace Aetherium.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ResetPassword(ResetPasswordViewModel model){
+        public IActionResult ResetPassword(ResetPasswordViewModel model) 
+        {
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -200,7 +229,7 @@ namespace Aetherium.Controllers
             }
 
             var hasher = new PasswordHasher<UserModel>();
-            user.PasswordHash = hasher.HashPassword(user, model.Password);
+            user.PasswordHash = hasher.HashPassword(user, model.NewPassword);
             user.PasswordResetToken = null;
             user.PasswordResetTokenExpiration = null;
             _context.SaveChanges();
@@ -208,6 +237,22 @@ namespace Aetherium.Controllers
             return RedirectToAction("ResetPasswordConfirmation");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CodeOfConduct(bool agree)
+        {
+            var userId = _userService.GetUserId();
+            if (userId == null || !agree) { return RedirectToAction("Index"); }
+
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if(user == null) { return RedirectToAction("Index"); }
+
+            user.AgreedToCoC = true;
+            _context.SaveChanges();
+
+            return RedirectToAction("Create", "Customer");
+        }
+        
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

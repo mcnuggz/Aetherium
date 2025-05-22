@@ -4,6 +4,16 @@ body {
   font-family: "Segoe UI", sans-serif;
 }
 
+.btn-primary {
+  background-color: #00ADB5;
+  color: #222831;
+  border: none;
+}
+.btn-primary:hover {
+  background-color: #00cfd9;
+  box-shadow: 0 0 10px #00ADB5;
+}
+
 #landingPage .nav-tabs {
   background-color: #393E46;
   border-bottom: none;
@@ -24,12 +34,38 @@ body {
 #landingPage .form-control {
   color: #EEEEEE;
 }
-#landingPage .btn-primary {
-  background-color: #00ADB5;
-  color: #222831;
-  border: none;
+
+#resetPasswordCard, #forgotPasswordCard {
+  background-color: #393E46;
+  color: #EEEEEE;
 }
-#landingPage .btn-primary:hover {
-  background-color: #00cfd9;
-  box-shadow: 0 0 10px #00ADB5;
+#resetPasswordCard a, #forgotPasswordCard a {
+  color: #00ADB5;
+}
+
+#forgotPasswordCard .input-wrapper {
+  position: relative;
+  display: inline-block;
+}
+#forgotPasswordCard .input-wrapper input {
+  padding-right: 30px;
+}
+#forgotPasswordCard .input-wrapper button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+#cocText {
+  background-color: #393E46;
+  max-height: 540px;
+  overflow-y: auto;
+  padding: 15px;
+  border-radius: 8px;
+}
+#cocText hr {
+  border: 1px solid #EEEEEE;
 }

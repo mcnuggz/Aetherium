@@ -1,65 +1,120 @@
-﻿@{
+﻿@using Aetherium.Models.ViewModels
+@model LandingPageViewModel;
+@{
     ViewData["Title"] = "Aetherium - Home";
 }
-
-<div class="container mt-5" id="landingPage" style="max-width: 500px;">
-    <section class="container d-flex flex-column align-items-center vh-50">
-        <div class="text-center mb-4 mt-3">
-            <h1 class="header-title">The Aetherium</h1>
-            <p class="lead">A realm in infinite possibilites await.</p>
+@Html.AntiForgeryToken()
+<div class="container mt-5" id="landingPage">
+    <div class="row col-12">
+        <section class="container d-flex flex-column align-items-center vh-50">
+            <div class="text-center mb-4 mt-3">
+                <h1 class="header-title">The Aetherium</h1>
+                <p class="lead">A realm in infinite possibilites await.</p>
+            </div>
+        </section>
+        
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <partial name="_CodeOfConductText" />
         </div>
-    </section>
-    <ul class="nav nav-tabs custom-tabs d-flex" id="authTab" role="tablist">
-        <li class="nav-item flex-fill" role="presentation">
-            <button class="nav-link active w-100" id="login-tab" data-bs-toggle="tab" data-bs-target="#login"
-                    type="button" role="tab" aria-controls="login" aria-selected="true">
-                Login
-            </button>
-        </li>
-        <li class="nav-item flex-fill" role="presentation">
-            <button class="nav-link w-100" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup"
-                    type="button" role="tab" aria-controls="signup" aria-selected="false">
-                Sign Up
-            </button>
-        </li>
-    </ul>
+        <div class="col-5 offset-1">
+            <ul class="nav nav-tabs custom-tabs d-flex" id="authTab" role="tablist">
+                <li class="nav-item flex-fill" role="presentation">
+                    <button class="nav-link active w-100" id="login-tab" data-bs-toggle="tab" data-bs-target="#login"
+                            type="button" role="tab" aria-controls="login" aria-selected="true">
+                        Login
+                    </button>
+                </li>
+                <li class="nav-item flex-fill" role="presentation">
+                    <button class="nav-link w-100" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup"
+                            type="button" role="tab" aria-controls="signup" aria-selected="false">
+                        Sign Up
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content p-4 custom-card rounded-bottom shadow text-light" id="authTabContent">
+                <!-- Login Form -->
+                <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+                    <h4 class="header-title">Login</h4>
+                    <hr />
+                    <form asp-action="Login" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Email address</label>
+                            <input asp-for="Login.Email" type="email" class="form-control" placeholder="Enter email">
+                            <span asp-validation-for="Login.Email" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <div class="input-group">
+                                <input asp-for="Login.Password" class="form-control" type="password" id="loginPassword" placeholder="Enter password" />
+                                <button type="button" class="btn btn-secondary" onclick="togglePassword('loginPassword', 'loginIcon1')">
+                                    <i class="fas fa-eye" id="loginIcon1"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Login.Password" class="text-danger"></span>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input asp-for="Login.RememberMe" class="form-check-input" type="checkbox" id="rememberMe" />
+                            <label class="form-check-label" for="rememberMe">Remember Me</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-4">Login</button>
+                        <p class="mt-3">
+                            <a class="btn btn-secondary w-100" href="/Home/ForgotPassword">Forgot your password?</a>
+                        </p>
+                    </form>
+                </div>
 
-    <div class="tab-content p-4 custom-card rounded-bottom" id="authTabContent">
-        <!-- Login Form -->
-        <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
-            <h4>Login</h4>
-            <hr />
-            <form>
-                <div class="mb-3">
-                    <label class="form-label">Email address</label>
-                    <input type="email" class="form-control" placeholder="Enter email">
+                <!-- Sign Up Form -->
+                <div class="tab-pane fade" id="signup" role="tabpanel" aria-labelledby="signup-tab">
+                    <h4 class="header-title">Sign Up</h4>
+                    <hr />
+                    <form asp-action="Register" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Email address</label>
+                            <input asp-for="Register.Email" type="email" class="form-control" placeholder="Enter email">
+                            <span asp-validation-for="Register.Email" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <div class="input-group">
+                                <input asp-for="Register.Password" class="form-control" type="password" id="registerPassword" placeholder="Enter password" />
+                                <button type="button" class="btn btn-secondary" onclick="togglePassword('registerPassword', 'registerIcon1')">
+                                    <i class="fas fa-eye" id="registerIcon1"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Register.Password" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <input asp-for="Register.ConfirmPassword" class="form-control" type="password" id="registerConfirmPassword" placeholder="Enter password" />
+                                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('registerConfirmPassword', 'registerIcon2')">
+                                    <i class="fas fa-eye" id="registerIcon2"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Register.ConfirmPassword" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-4">Create Account</button>
+                    </form>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" placeholder="Password">
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Login</button>
-                <p class="mt-3">
-                    <a class="btn btn-secondary w-100" href="/Home/ForgotPassword">Forgot your password?</a>
-                </p>
-            </form>
-        </div>
-
-        <!-- Sign Up Form -->
-        <div class="tab-pane fade" id="signup" role="tabpanel" aria-labelledby="signup-tab">
-            <h4>Sign Up</h4>
-            <hr />
-            <form>
-                <div class="mb-3">
-                    <label class="form-label">Email address</label>
-                    <input type="email" class="form-control" placeholder="Enter email">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" placeholder="Password">
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Create Account</button>
-            </form>
+            </div>
         </div>
     </div>
+
+    
 </div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+<script>
+    function togglePassword(fieldId, toggleIcon) {
+        const input = document.getElementById(fieldId);
+        var icon = document.getElementById(toggleIcon);
+        const isHidden = input.type === "password";
+
+        input.type = isHidden ? "text" : "password";
+        icon.classList.toggle("fa-eye", !isHidden);
+        icon.classList.toggle("fa-eye-slash", isHidden);
+    }
+</script>

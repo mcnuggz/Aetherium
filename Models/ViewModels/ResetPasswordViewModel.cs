@@ -13,7 +13,7 @@ namespace Aetherium.Models.ViewModels
         [Required]
         [DataType(DataType.Password)]
         [MinLength(6)]
-        public string Password { get; set; }
+        public string NewPassword { get; set; }
 
         [Compare("NewPassword", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; }

@@ -1,0 +1,22 @@
+﻿@page
+@model Aetherium.Views.Home.CodeOfConductcshtmlModel
+@{
+    ViewData["Title"] = "Code of Conduct Agreement";
+}
+<div class="container mt-5 text-light">
+    <div class="card p-4 shadow" style="background-color: #393E46;">
+        <h2 class="header-title">Code of Conduct & Terms of Service</h2>
+        <hr />
+        <p>Please take a moment to review and agree to the following before continuing:</p>
+
+        <partial name="_CodeOfConductText" />
+
+        <form method="post" asp-action="CodeOfConduct">
+            <div class="form-check mt-4">
+                <input type="checkbox" class="form-check-input" id="agree" name="agree" value="true" required />
+                <label class="form-check-label" for="agree">I have read and agree to Aetherium's Code of Conduct.</label>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Continue</button>
+        </form>
+    </div>
+</div>

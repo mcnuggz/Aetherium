@@ -14,6 +14,17 @@ body {
     font-family: $font-main;
 }
 
+.btn-primary {
+    background-color: $accent-color;
+    color: $primary-bg;
+    border: none;
+
+    &:hover {
+        background-color: $accent-hover;
+        box-shadow: 0 0 10px $accent-color;
+    }
+}
+
 #landingPage {
     .nav-tabs {
         background-color: $card-bg;
@@ -40,14 +51,45 @@ body {
         color: $text-color;
     }
 
-    .btn-primary {
-        background-color: $accent-color;
-        color: $primary-bg;
-        border: none;
+}
 
-        &:hover {
-            background-color: $accent-hover;
-            box-shadow: 0 0 10px $accent-color;
-        }
+#resetPasswordCard, #forgotPasswordCard {
+    background-color: $card-bg;
+    color: $text-color;
+
+    a{
+        color: $accent-color;
+    }
+}
+
+#forgotPasswordCard {
+    .input-wrapper {
+        position: relative;
+        display: inline-block
+    }
+
+    .input-wrapper input {
+        padding-right: 30px;
+    }
+
+    .input-wrapper button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        border: none;
+        background-color: transparent;
+        cursor: pointer;
+    }
+}
+
+#cocText {
+    background-color: $card-bg;
+    max-height: 540px;
+    overflow-y: auto;
+    padding: 15px;
+    border-radius: 8px;
+
+    hr {
+        border: 1px solid $text-color;
     }
 }

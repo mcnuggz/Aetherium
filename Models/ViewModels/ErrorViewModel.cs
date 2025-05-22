@@ -1,4 +1,4 @@
-namespace Aetherium.Models
+namespace Aetherium.Models.ViewModels
 {
     public class ErrorViewModel
     {
