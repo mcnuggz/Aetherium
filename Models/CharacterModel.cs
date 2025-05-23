@@ -11,6 +11,9 @@ namespace Aetherium.Models
         public string LastName { get; set; }
         public string DisplayName { get; set; }
         public string AvatarUrl { get; set; }
+        public string BannerUrl { get; set; }
+        public int? BannerOffsetY { get; set; }
+        public bool IsBannerGif { get; set; }
         public string CharacterBio { get;set; }
         public GenderEnum CharacterGender { get; set; }
         public OrientationEnum CharacterOrientation { get; set; }
@@ -34,5 +37,10 @@ namespace Aetherium.Models
         [ForeignKey(nameof(UserAccountId))]
         public UserModel UserAccount { get; set; }
         public ICollection<PostModel> Posts { get; set; }
+        public ICollection<CharacterRelationshipModel> RelationshipsInitiated { get; set; } 
+        public ICollection<CharacterRelationshipModel> RelationshipsReceived { get; set; }
+        public ICollection<AlbumModel> Albums { get; set; }
+        public ICollection<PhotoModel> Photos { get; set; }
+
     }
 }
