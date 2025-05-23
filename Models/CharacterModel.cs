@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Aetherium.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Aetherium.Models
 {
@@ -6,10 +7,29 @@ namespace Aetherium.Models
     {
         public int Id { get; set; }
         public int UserAccountId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string DisplayName { get; set; }
         public string AvatarUrl { get; set; }
         public string CharacterBio { get;set; }
+        public GenderEnum CharacterGender { get; set; }
+        public OrientationEnum CharacterOrientation { get; set; }
+        public string Pronouns { get; set; }
+
+        public string Species { get; set; }
+        public string OriginWorld { get; set; }
+        public string Occupation { get; set; }
+        public MoodEnum CharacterMood { get; set; }
+        public string CustomMood { get; set; }
+
+
         public DateTime? LastLoggedIn { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public DateTime? LastUpdatedAt { get; set; }
+
+        public bool IsPublic { get; set; }
+        public bool IsArchived { get; set; }
+
 
         [ForeignKey(nameof(UserAccountId))]
         public UserModel UserAccount { get; set; }
