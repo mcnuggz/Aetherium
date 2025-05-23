@@ -83,6 +83,9 @@ namespace Aetherium.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LandingPageViewModel model)
         {
+            ModelState.Clear();
+            TryValidateModel(model.Login);
+
             if (!ModelState.IsValid)
             {
                 return View("Index", model);
@@ -129,9 +132,13 @@ namespace Aetherium.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Register(LandingPageViewModel model) {
+
+            ModelState.Clear();
+            TryValidateModel(model.Register);
+
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View("Index", model);
             }
 
             string ipAddress = GetClientIP();
@@ -147,14 +154,14 @@ namespace Aetherium.Controllers
 
             if (_context.Users.Any(u => u.Email == model.Register.Email))
             {
-                ModelState.AddModelError(string.Empty, "Email or Username is already taken.");
-                return View(model);
+                ModelState.AddModelError(string.Empty, "Email is already being used.");
+                return View("Index", model);
             }
 
             if (registrationsToday >= 3)
             {
                 ModelState.AddModelError("", "Too many registrations from this IP today. Try again later.");
-                return View(model);
+                return View("Index", model);
             }
 
             var newUser = new UserModel
@@ -166,6 +173,10 @@ namespace Aetherium.Controllers
                 IsIPBanned = false,
                 SuspensionDuration = 0,
                 LastKnownIP = ipAddress,
+                EmailConfirmationToken = token,
+                TokenGeneratedAt = DateTime.UtcNow,
+                PasswordResetToken = string.Empty,
+                PasswordResetTokenExpiration = null
             };
 
             _context.Users.Add(newUser);
@@ -230,7 +241,7 @@ namespace Aetherium.Controllers
 
             var hasher = new PasswordHasher<UserModel>();
             user.PasswordHash = hasher.HashPassword(user, model.NewPassword);
-            user.PasswordResetToken = null;
+            user.PasswordResetToken = string.Empty;
             user.PasswordResetTokenExpiration = null;
             _context.SaveChanges();
 

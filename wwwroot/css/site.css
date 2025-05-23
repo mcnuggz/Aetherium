@@ -30,8 +30,7 @@ body {
   background-color: #393E46;
   color: #EEEEEE;
 }
-#landingPage .form-label,
-#landingPage .form-control {
+#landingPage .form-label {
   color: #EEEEEE;
 }
 

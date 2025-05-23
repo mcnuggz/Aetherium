@@ -39,6 +39,10 @@
                     <h4 class="header-title">Login</h4>
                     <hr />
                     <form asp-action="Login" method="post">
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div asp-validation-summary="All" class="alert alert-danger"></div>
+                        }
                         <div class="mb-3">
                             <label class="form-label">Email address</label>
                             <input asp-for="Login.Email" type="email" class="form-control" placeholder="Enter email">
@@ -70,6 +74,10 @@
                     <h4 class="header-title">Sign Up</h4>
                     <hr />
                     <form asp-action="Register" method="post">
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div asp-validation-summary="All" class="alert alert-danger"></div>
+                        }
                         <div class="mb-3">
                             <label class="form-label">Email address</label>
                             <input asp-for="Register.Email" type="email" class="form-control" placeholder="Enter email">
@@ -87,7 +95,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Confirm Password</label>
-                            <div class="input-group">
+                            <div class="input-group mb-3">
                                 <input asp-for="Register.ConfirmPassword" class="form-control" type="password" id="registerConfirmPassword" placeholder="Enter password" />
                                 <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('registerConfirmPassword', 'registerIcon2')">
                                     <i class="fas fa-eye" id="registerIcon2"></i>
@@ -100,10 +108,9 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    
+    </div> 
 </div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
