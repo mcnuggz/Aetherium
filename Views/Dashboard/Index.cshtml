@@ -1,0 +1,27 @@
+﻿@model List<CharacterModel>
+
+<div class="container mt-4 text-light">
+    <h2>Your Characters</h2>
+
+    @if (!Model.Any())
+    {
+        <p>You haven't created any characters yet.</p>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var character in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow" style="background-color: #393E46; border: none;">
+                        <img src="@character.AvatarUrl" class="card-img-top" alt="@character.DisplayName" style="height: 200px; object-fit: cover;" />
+                        <div class="card-body">
+                            <h5 class="card-title">@character.DisplayName</h5>
+                            <p class="card-text">Created: @character.CreatedOn.ToShortDateString()</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

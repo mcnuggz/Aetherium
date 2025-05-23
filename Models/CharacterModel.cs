@@ -25,14 +25,12 @@ namespace Aetherium.Models
         public MoodEnum CharacterMood { get; set; }
         public string CustomMood { get; set; }
 
-
         public DateTime? LastLoggedIn { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
 
         public bool IsPublic { get; set; }
         public bool IsArchived { get; set; }
-
 
         [ForeignKey(nameof(UserAccountId))]
         public UserModel UserAccount { get; set; }

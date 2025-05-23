@@ -1,0 +1,188 @@
+﻿@using Aetherium.Enums
+
+<div id="characterApp" class="container mt-5 text-light">
+    <div class="card p-4 shadow" style="background-color: #393E46;">
+        <h2 class="header-title mb-3">Create Your Character</h2>
+
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div class="row">
+                <div class="mb-3">
+                    <label class="form-label">Upload Avatar</label>
+                    <input type="file" class="form-control" accept="image/*" @@change="onAvatarChange">
+
+                    <div v-if="avatarPreview" class="mt-3">
+                        <img id="avatarPreview" :src="avatarPreview" style="max-width: 100%; max-height: 300px;" />
+                    </div>
+
+                    <input type="hidden" name="CroppedAvatarBase64" :value="croppedAvatar" />
+
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Upload Banner</label>
+                        <input type="file" class="form-control" name="BannerFile" accept="image/*" @@change="onBannerChange">
+                        <div v-if="bannerPreview" class="mt-3 banner-wrapper" style="overflow: hidden; height: 200px; position: relative; cursor: grab;"
+                             @@mousedown ="startDrag" @@mouseup ="stopDrag" @@mouseleave ="stopDrag" @@mousemove ="dragBanner">
+                            <img :src="bannerPreview" ref="bannerImage" :style="{ position: 'relative', top: bannerOffsetY + 'px', width: '100%' }" />
+                        </div>
+                        <input type="hidden" name="BannerOffsetY" :value="bannerOffsetY" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">First Name</label>
+                    <input type="text" class="form-control" name="FirstName" v-model="firstName" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" class="form-control" name="LastName" v-model="lastName" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Display Name</label>
+                    <input type="text" class="form-control" name="DisplayName" v-model="displayName" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Gender</label>
+                    <select class="form-select" name="CharacterGender" v-model="characterGender">
+                        @foreach (var gender in Enum.GetValues(typeof(GenderEnum)))
+                        {
+                            <option value="@((int)gender)">@Enum.GetName(typeof(GenderEnum), gender)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Orientation</label>
+                    <select class="form-select" name="CharacterOrientation" v-model="characterOrientation">
+                        @foreach (var orientation in Enum.GetValues(typeof(OrientationEnum)))
+                        {
+                            <option value="@((int)orientation)">@Enum.GetName(typeof(OrientationEnum), orientation)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Pronouns</label>
+                    <input type="text" class="form-control" name="Pronouns" v-model="pronouns" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Species</label>
+                    <input type="text" class="form-control" name="Species" v-model="species" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Origin World</label>
+                    <input type="text" class="form-control" name="OriginWorld" v-model="originWorld" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Occupation</label>
+                    <input type="text" class="form-control" name="Occupation" v-model="occupation" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Bio</label>
+                <div id="bioEditor"></div>
+                <input type="hidden" name="CharacterBio" :value="characterBio">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create Character</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const { createApp, ref, onMounted, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                const displayName = ref('');
+                const firstName = ref('');
+                const lastName = ref('');
+                const pronouns = ref('');
+                const species = ref('');
+                const originWorld = ref('');
+                const occupation = ref('');
+                const characterGender = ref(0);
+                const characterOrientation = ref(0);
+
+                const bannerOffsetY = ref(0);
+                const bannerPreview = ref('');
+                const isDragging = ref(false);
+                const dragStartY = ref(0);
+
+                const characterBio = ref('');
+                const avatarPreview = ref('');
+                const croppedAvatar = ref('');
+                let cropper = null;
+
+                onMounted(() => {
+                    const quill = new Quill('#bioEditor', {
+                        theme: 'snow'
+                    });
+                    quill.on('text-change', function () {
+                        characterBio.value = quill.root.innerHTML;
+                    });
+                });
+
+                function onAvatarChange(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    const fReader = new FileReader();
+                    fReader.onload = () => {
+                        avatarPreview.value = fReader.result;
+                        nextTick(() => {
+                            const image = document.getElementById('avatarPreview');
+                            if (cropper) cropper.destroy();
+                            cropper = new Cropper(image, {
+                                aspectRatio: 1,
+                                viewMode: 1,
+                                autoCropArea: 1,
+                                crop() {
+                                    const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+                                    croppedAvatar.value = canvas.toDataURL('image/png');
+                                }
+                            });
+                        });
+                    };
+                    fReader.readAsDataURL(file);
+                }
+
+                function onBannerChange(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        bannerPreview.value = reader.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+
+                function startDrag(event) {
+                    isDragging.value = true;
+                    dragStartY.value = event.clientY;
+                }
+
+                function stopDrag() {
+                    isDragging.value = false;
+                }
+
+                function dragBanner(event) {
+                    if (!isDragging.value) return;
+                    const deltaY = event.clientY - dragStartY.value;
+                    bannerOffsetY.value += deltaY;
+                    dragStartY.value = event.clientY;
+                }
+
+                return {
+                    displayName, firstName, lastName, pronouns,
+                    species, originWorld, occupation,
+                    characterGender, characterOrientation,
+                    bannerOffsetY, bannerPreview,
+                    characterBio, avatarPreview, croppedAvatar,
+                    onAvatarChange, onBannerChange,
+                    startDrag, stopDrag, dragBanner
+                };
+            }
+        }).mount('#characterApp');
+    </script>
+}
