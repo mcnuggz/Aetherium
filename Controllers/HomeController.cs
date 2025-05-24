@@ -3,11 +3,9 @@ using Aetherium.Enums;
 using Aetherium.Models;
 using Aetherium.Models.ViewModels;
 using Aetherium.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using System.Security.Cryptography;
 
 namespace Aetherium.Controllers
 {
@@ -16,15 +14,13 @@ namespace Aetherium.Controllers
         private readonly SmtpEmailService _emailService;
         private readonly UserService _userService;
         private readonly ApplicationDbContext _context;
-        private readonly ILogger _logger;
         private readonly PasswordService _passwordService;
 
-        public HomeController(ApplicationDbContext context, SmtpEmailService emailService, UserService userService, ILogger logger, PasswordService passwordService)
+        public HomeController(ApplicationDbContext context, SmtpEmailService emailService, UserService userService, PasswordService passwordService)
         {
             _context = context;
             _emailService = emailService;
             _userService = userService;
-            _logger = logger;
             _passwordService = passwordService;
         }
 
@@ -113,7 +109,6 @@ namespace Aetherium.Controllers
                 return View("Index", model);
             }
 
-            // IP Ban check
             if (user.IsIPBanned || user.LastKnownIP == ipAddress && user.IsIPBanned)
             {
                 ModelState.AddModelError("", "User is IP Banned");

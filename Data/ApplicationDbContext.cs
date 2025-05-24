@@ -60,7 +60,11 @@ namespace Aetherium.Data
                 .HasOne(p => p.Character)
                 .WithMany(c => c.Photos)
                 .HasForeignKey(p => p.CharacterId)
-                .OnDelete(DeleteBehavior.Restrict); 
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<CharacterModel>()
+                .HasIndex(c => c.CustomUrl)
+                .IsUnique();
         }
     }
 }

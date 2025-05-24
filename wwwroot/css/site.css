@@ -90,9 +90,10 @@ body {
   min-height: 200px;
 }
 #characterCreateDiv .ql-editor {
-  min-height: 150px;
+  max-height: 200px;
   padding: 12px;
   color: black;
+  overflow-y: auto;
 }
 #characterCreateDiv .ql-toolbar {
   border-radius: 6px 6px 0 0;
@@ -100,4 +101,7 @@ body {
 }
 #characterCreateDiv .ql-toolbar svg {
   fill: #EEEEEE;
+}
+#characterCreateDiv .form-text {
+  color: #EEEEEE;
 }

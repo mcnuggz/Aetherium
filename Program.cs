@@ -32,6 +32,7 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<PasswordService>();
 
 var app = builder.Build();
 
@@ -58,6 +59,12 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "characterCustomUrl",
+    pattern: "{customUrl}",
+    defaults: new { controller = "Character", action = "ViewByCustomUrl" }
+);
 app.MapRazorPages();
 
 

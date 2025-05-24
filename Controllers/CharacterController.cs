@@ -3,6 +3,7 @@ using Aetherium.Models;
 using Aetherium.Models.ViewModels;
 using Aetherium.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
 namespace Aetherium.Controllers
@@ -18,6 +19,18 @@ namespace Aetherium.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+
+        public IActionResult ViewByCustomUrl(string customUrl)
+        {
+            var character = _context.Characters
+                .Include(c => c.UserAccount)
+                .FirstOrDefault(c => c.CustomUrl == customUrl);
+
+            if (character == null)
+                return NotFound();
+
+            return View("CharacterProfile", character);
         }
 
         [HttpGet]
@@ -74,6 +87,35 @@ namespace Aetherium.Controllers
 
                 bannerPath = $"/uploads/banners/{bannerFileName}";
             }
+            var bioContent = string.IsNullOrWhiteSpace(model.CharacterBio) || model.CharacterBio.Length < 10 ? "<p><em>Under Construction</em></p>" : model.CharacterBio;
+
+            string customUrl;
+
+            if (!string.IsNullOrWhiteSpace(model.CustomUrl))
+            {
+                customUrl = Slugify(model.CustomUrl);
+
+                // Check uniqueness
+                bool exists = _context.Characters.Any(c => c.CustomUrl == customUrl);
+                if (exists)
+                {
+                    ModelState.AddModelError("CustomUrl", "That custom URL is already taken.");
+                    return View(model);
+                }
+            }
+            else
+            {
+                var safeFirstName = model.FirstName?.Trim().ToLower().Replace(" ", "-") ?? "char";
+                var suffix = Guid.NewGuid().ToString("N")[..6];
+                customUrl = $"{safeFirstName}-{suffix}";
+            }
+
+            var isValid = Regex.IsMatch(customUrl, @"^[a-z0-9\-]+$");
+            if (!isValid)
+            {
+                ModelState.AddModelError("CustomUrl", "Custom URL may only contain lowercase letters, numbers, and hyphens.");
+                return View(model);
+            }
 
             var character = new CharacterModel
             {
@@ -81,16 +123,17 @@ namespace Aetherium.Controllers
                 DisplayName = model.DisplayName,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
-                CharacterBio = model.CharacterBio,
+                CharacterBio = bioContent,
                 AvatarUrl = avatarPath ?? string.Empty,
                 BannerUrl = bannerPath ?? string.Empty,
                 BannerOffsetY = model.BannerOffsetY,
                 IsBannerGif = isBannerGif,
                 CharacterGender = model.CharacterGender,
                 CharacterOrientation = model.CharacterOrientation,
+                CustomUrl = customUrl,
                 Pronouns = model.Pronouns,
                 Species = model.Species,
-                OriginWorld = model.OriginWorld,
+                Verse = model.Verse,
                 Occupation = model.Occupation,
                 CreatedOn = DateTime.UtcNow,
                 IsPublic = true,
@@ -101,6 +144,11 @@ namespace Aetherium.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("Index", "Dashboard");
+        }
+
+        private string Slugify(string input)
+        {
+            return Regex.Replace(input.ToLower().Trim(), @"[^a-z0-9]+", "-").Trim('-');
         }
     }
 }

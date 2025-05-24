@@ -6,31 +6,44 @@
 <div id="characterApp" class="container mt-5">
     <div class="card p-4 shadow" id="characterCreateDiv">
         <h2 class="header-title mb-3 pb-1">Create Your Character</h2>
-
-        <form asp-action="Create" method="post" enctype="multipart/form-data">
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <div><i class="fas fa-exclamation-circle"></i> @error.ErrorMessage</div>
+                }
+            </div>
+        }
+        <form ref="characterForm" action="/Character/Create" method="post" enctype="multipart/form-data">
             <div class="row">
-                <div class="mb-3">
+                <div class="col-md-6 mb-3">
                     <label class="form-label">Upload Avatar</label>
                     <input type="file" class="form-control" accept="image/*" @@change="onAvatarChange">
+                </div>
+                <div class="col-md-6 mb-3">
+                        <div v-if="avatarPreview" class="mt-3">
+                            <img id="avatarPreview" :src="avatarPreview" style="max-width: 100%; max-height: 400px;" />
+                        </div>
 
-                    <div v-if="avatarPreview" class="mt-3">
-                        <img id="avatarPreview" :src="avatarPreview" style="max-width: 100%; max-height: 300px;" />
-                    </div>
-
-                    <input type="hidden" name="CroppedAvatarBase64" :value="croppedAvatar" />
+                        <input type="hidden" name="CroppedAvatarBase64" :value="croppedAvatar" />
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 mb-3">
+                <div class="col-md-6 mb-3">
                     <label class="form-label">Upload Banner</label>
                     <input type="file" class="form-control" name="BannerFile" accept="image/*" @@change="onBannerChange">
-                    <div v-if="bannerPreview" class="mt-3 banner-wrapper" style="overflow: hidden; height: 200px; position: relative; cursor: grab;"
-                            @@mousedown ="startDrag" @@mouseup ="stopDrag" @@mouseleave ="stopDrag" @@mousemove ="dragBanner">
+                    
+                </div>
+                <div class="col-md-12 mb-3">
+                    <div v-if="bannerPreview" class="mt-3 banner-wrapper" style="overflow: hidden; height: 250px; position: relative; cursor: grab;"
+                         @@mousedown="startDrag" @@mouseup="stopDrag" @@mousemove="dragBanner">
                         <img :src="bannerPreview" ref="bannerImage" :style="{ position: 'relative', top: bannerOffsetY + 'px', width: '100%' }" />
                     </div>
                     <input type="hidden" name="BannerOffsetY" :value="bannerOffsetY" />
                 </div>
             </div>
+            <hr />
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">First Name</label>
@@ -45,20 +58,29 @@
                     <input type="text" class="form-control" name="DisplayName" v-model="displayName" />
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Gender</label>
-                    <select class="form-select" name="CharacterGender" v-model="characterGender">
-                        @foreach (var gender in Enum.GetValues(typeof(GenderEnum)))
-                        {
-                            <option value="@((int)gender)">@Enum.GetName(typeof(GenderEnum), gender)</option>
-                        }
-                    </select>
+                    <label class="form-label">Custom URL</label>
+                    <input type="text" class="form-control" name="CustomUrl" v-model="customUrl" placeholder="e.g. raven-the-witch" />
+                    <div class="form-text">Choose a unique URL (letters, numbers, dashes only)</div>
+                    <small class="form-text">
+                        Preview: <span id="customUrlPreview">aetherium.com/<em>your-url</em></span>
+                    </small>
                 </div>
+                <hr />
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Orientation</label>
                     <select class="form-select" name="CharacterOrientation" v-model="characterOrientation">
                         @foreach (var orientation in Enum.GetValues(typeof(OrientationEnum)))
                         {
                             <option value="@((int)orientation)">@Enum.GetName(typeof(OrientationEnum), orientation)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Gender</label>
+                    <select class="form-select" name="CharacterGender" v-model="characterGender">
+                        @foreach (var gender in Enum.GetValues(typeof(GenderEnum)))
+                        {
+                            <option value="@((int)gender)">@Enum.GetName(typeof(GenderEnum), gender)</option>
                         }
                     </select>
                 </div>
@@ -72,17 +94,20 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Verse</label>
-                    <input type="text" class="form-control" name="OriginWorld" v-model="originWorld" />
+                    <input type="text" class="form-control" name="Verse" v-model="verse" />
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Occupation</label>
                     <input type="text" class="form-control" name="Occupation" v-model="occupation" />
                 </div>
             </div>
-
+            <hr />
             <div class="mb-3">
-                <label class="form-label">Bio</label>
+                <label class="form-label">Character Bio</label>
                 <div id="bioEditor"></div>
+                <div class="text-end small mt-1">
+                    <span id="bioCharCount">0</span> / 10000 characters
+                </div>
                 <input type="hidden" name="CharacterBio" :value="characterBio">
             </div>
 
@@ -93,19 +118,21 @@
 
 @section Scripts {
     <script>
-        const { createApp, ref, onMounted, nextTick } = Vue;
+        const { createApp, ref, onMounted, nextTick, watch } = Vue;
 
         createApp({
             setup() {
+                const characterForm = ref(null);
                 const displayName = ref('');
                 const firstName = ref('');
                 const lastName = ref('');
                 const pronouns = ref('');
                 const species = ref('');
-                const originWorld = ref('');
+                const verse = ref('');
                 const occupation = ref('');
                 const characterGender = ref(0);
                 const characterOrientation = ref(0);
+                const customUrl = ref('');
 
                 const bannerOffsetY = ref(0);
                 const bannerPreview = ref('');
@@ -116,14 +143,42 @@
                 const avatarPreview = ref('');
                 const croppedAvatar = ref('');
                 let cropper = null;
+                let quill;
 
                 onMounted(() => {
-                    const quill = new Quill('#bioEditor', {
-                        theme: 'snow'
-                    });
+                    quill = new Quill('#bioEditor', { theme: 'snow' });
+
+                    // Update live character count
                     quill.on('text-change', function () {
                         characterBio.value = quill.root.innerHTML;
+
+                        const plainText = quill.getText().trim();
+                        const $countEl = $('#bioCharCount');
+                        const length = plainText.length;
+
+                        $countEl.text(length);
+                        $countEl.toggleClass('text-danger', length > 10000).toggleClass('text-warning', length > 9500 && length <= 10000);
                     });
+
+                    $('#bioEditor').on('click', function () {
+                        quill.focus(); // Programmatically focuses the Quill editor
+                    });
+
+                    // Manual submit binding
+                    $(characterForm.value).on('submit', (event) => {
+                        const length = quill.getText().trim().length;
+                        if (length > 10000) {
+                            alert("Your Bio is too long. Please limit to 10,000 characters.");
+                            event.preventDefault();
+                        }
+                    });
+                });
+
+                // Update custom URL preview
+                watch(customUrl, (newVal) => {
+                    const slug = newVal.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+                    $('#customUrlPreview').html(`aetherium.com/<em>${slug}</em>`);
                 });
 
                 function onAvatarChange(event) {
@@ -178,9 +233,9 @@
                 }
 
                 return {
-                    displayName, firstName, lastName, pronouns,
-                    species, originWorld, occupation,
-                    characterGender, characterOrientation,
+                    characterForm, displayName, firstName, lastName, pronouns,
+                    species, verse, occupation, characterGender,
+                    characterOrientation, customUrl,
                     bannerOffsetY, bannerPreview,
                     characterBio, avatarPreview, croppedAvatar,
                     onAvatarChange, onBannerChange,
@@ -189,4 +244,5 @@
             }
         }).mount('#characterApp');
     </script>
+
 }

@@ -33,7 +33,7 @@
                     </button>
                 </li>
             </ul>
-            <div class="tab-content p-4 custom-card rounded-bottom shadow text-light" id="authTabContent">
+            <div class="tab-content p-4 custom-card rounded-bottom shadow" id="authTabContent">
                 <!-- Login Form -->
                 <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
                     <h4 class="header-title">Login</h4>
@@ -41,7 +41,12 @@
                     <form asp-action="Login" method="post">
                         @if (!ViewData.ModelState.IsValid)
                         {
-                            <div asp-validation-summary="All" class="alert alert-danger"></div>
+                            <div class="alert alert-danger">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <div><i class="fas fa-exclamation-circle"></i> @error.ErrorMessage</div>
+                                }
+                            </div>
                         }
                         <div class="mb-3">
                             <label class="form-label">Email address</label>
@@ -76,7 +81,12 @@
                     <form asp-action="Register" method="post">
                         @if (!ViewData.ModelState.IsValid)
                         {
-                            <div asp-validation-summary="All" class="alert alert-danger"></div>
+                            <div class="alert alert-danger">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <div><i class="fas fa-exclamation-circle"></i> @error.ErrorMessage</div>
+                                }
+                            </div>
                         }
                         <div class="mb-3">
                             <label class="form-label">Email address</label>
@@ -115,13 +125,26 @@
     <partial name="_ValidationScriptsPartial" />
 }
 <script>
-    function togglePassword(fieldId, toggleIcon) {
-        const input = document.getElementById(fieldId);
-        var icon = document.getElementById(toggleIcon);
-        const isHidden = input.type === "password";
+    $(function () {
+        const $errorAlert = $('#errorAlert');
+        if ($errorAlert.length) {
+            setTimeout(() => {
+                $errorAlert.fadeOut('fast');
+            }, 5000);
 
-        input.type = isHidden ? "text" : "password";
-        icon.classList.toggle("fa-eye", !isHidden);
-        icon.classList.toggle("fa-eye-slash", isHidden);
+            $('input, textarea, select').one('input', function () {
+                $errorAlert.fadeOut('fast');
+            });
+        }
+    });
+
+    function togglePassword(fieldId, toggleIconId) {
+        const $input = $('#' + fieldId);
+        const $icon = $('#' + toggleIconId);
+        const isHidden = $input.attr('type') === 'password';
+
+        $input.attr('type', isHidden ? 'text' : 'password');
+        $icon.toggleClass('fa-eye', !isHidden);
+        $icon.toggleClass('fa-eye-slash', isHidden);
     }
 </script>

@@ -108,16 +108,17 @@ body {
     }
 }
 
-#characterCreateDiv{
+#characterCreateDiv {
     .ql-container {
         background-color: #fff;
         min-height: 200px;
     }
 
     .ql-editor {
-        min-height: 150px;
+        max-height: 200px;
         padding: 12px;
         color: black;
+        overflow-y: auto;
     }
 
     .ql-toolbar {
@@ -127,5 +128,9 @@ body {
 
     .ql-toolbar svg {
         fill: #EEEEEE;
+    }
+
+    .form-text{
+        color: $text-color;
     }
 }
