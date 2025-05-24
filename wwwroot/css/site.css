@@ -1,3 +1,7 @@
+html, body {
+  height: 100%;
+}
+
 body {
   background-color: #222831;
   color: #EEEEEE;
@@ -67,4 +71,33 @@ body {
 }
 #cocText hr {
   border: 1px solid #EEEEEE;
+}
+
+#registerConfirmDiv,
+#codeOfConductDiv,
+#characterCreateDiv {
+  background-color: #393E46;
+  color: #EEEEEE;
+}
+#registerConfirmDiv .header-title,
+#codeOfConductDiv .header-title,
+#characterCreateDiv .header-title {
+  border-bottom: 2px solid #00ADB5;
+}
+
+#characterCreateDiv .ql-container {
+  background-color: #fff;
+  min-height: 200px;
+}
+#characterCreateDiv .ql-editor {
+  min-height: 150px;
+  padding: 12px;
+  color: black;
+}
+#characterCreateDiv .ql-toolbar {
+  border-radius: 6px 6px 0 0;
+  background-color: #f8f8f8;
+}
+#characterCreateDiv .ql-toolbar svg {
+  fill: #EEEEEE;
 }

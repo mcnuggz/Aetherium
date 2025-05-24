@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "Email Confirmation";
+}
+
+<div class="container mt-5">
+    <div class="card shadow p-4" id="registerConfirmDiv">
+        <h2 class="header-title mb-3 pb-1">Confirm Your Email</h2>
+        <p>@ViewBag.Message</p>
+        <p>
+            Didn't receive the email? Check your spam folder or <a href="/Home/ForgotPassword">reset your password</a> to resend it.
+        </p>
+    </div>
+</div>

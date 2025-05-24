@@ -1,9 +1,14 @@
-﻿namespace Aetherium.Enums
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Aetherium.Enums
 {
     public enum UserRoleEnum
     {
-        Admin = 0,
-        Mod = 1,
-        User = 2,
+        [Display(Name = "Admin")]
+        Admin = 3,
+        [Display(Name = "Mod")]
+        Mod = 2,
+        [Display(Name = "User")]
+        User = 1,
     }
 }

@@ -50,16 +50,14 @@ namespace Aetherium.Controllers
         public IActionResult ConfirmEmail(string email, string token)
         {
             var user = _context.Users.FirstOrDefault(x => x.Email == email && x.EmailConfirmationToken == token);
-            if (user == null || user.IsEmailConfirmed)
-            {
-                return RedirectToAction("EmailConfirmationFailed");
-            }
+            if (user == null || user.IsEmailConfirmed) { return RedirectToAction("EmailConfirmationFailed"); }
 
             user.IsEmailConfirmed = true;
-            user.EmailConfirmationToken = null;
+            user.EmailConfirmationToken = string.Empty;
             user.TokenGeneratedAt = null;
 
             _context.SaveChanges();
+
             HttpContext.Session.SetInt32("UserId", user.Id);
             HttpContext.Session.SetString("UserRole", user.Role.ToString());
 
@@ -70,13 +68,18 @@ namespace Aetherium.Controllers
         public IActionResult CodeOfConduct()
         {
             var userId = _userService.GetUserId();
+
             if (userId == null) { return RedirectToAction("Index"); }
 
             var user = _context.Users.FirstOrDefault(u => u.Id == userId);
-            if (user == null || user.AgreedToCoC)
-            {
-                return RedirectToAction("Create", "Character");
-            }
+            if (user == null || user.AgreedToCoC) { return RedirectToAction("Create", "Character"); }
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult RegisterConfirmation()
+        {
+            ViewBag.Message = "Thanks for signing up! Please check your email to confirm your account before logging in.";
             return View();
         }
 
@@ -97,6 +100,12 @@ namespace Aetherium.Controllers
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(model.Login.Password, user.PasswordHash)) {
                 ModelState.AddModelError("", "Invalid login attempt");
+                return View("Index", model);
+            }
+
+            if (!user.IsEmailConfirmed)
+            {
+                ModelState.AddModelError("", "You must confirm your email before logging in.");
                 return View("Index", model);
             }
 
@@ -186,9 +195,9 @@ namespace Aetherium.Controllers
             HttpContext.Session.SetString("UserRole", newUser.Role.ToString());
 
             var confirmUrl = Url.Action("ConfirmEmail", "Home", new { email = model.Register.Email, Token = token }, Request.Scheme);
-            _emailService.SendEmail(newUser.Email, "Confirm Your Account", $"<div style='text-align: center;'>Please confirm your account by clicking this link: <a href='{confirmUrl}'>Confirm Email</a><br /></div>");
+            _emailService.SendEmail(newUser.Email, "Confirm Your Account", $"<div><p>Please confirm your account by clicking this link: <a href='{confirmUrl}'>Confirm Email</a></p></div>");
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("RegisterConfirmation");
         }
 
         [HttpPost]
@@ -261,7 +270,7 @@ namespace Aetherium.Controllers
             user.AgreedToCoC = true;
             _context.SaveChanges();
 
-            return RedirectToAction("Create", "Customer");
+            return RedirectToAction("Create", "Character");
         }
         
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -8,6 +8,10 @@ $accent-hover: #00cfd9;
 $text-color: #EEEEEE;
 $font-main: 'Segoe UI', sans-serif;
 
+html, body{
+    height: 100%;
+}
+
 body {
     background-color: $primary-bg;
     color: $text-color;
@@ -90,5 +94,38 @@ body {
 
     hr {
         border: 1px solid $text-color;
+    }
+}
+
+#registerConfirmDiv, 
+#codeOfConductDiv, 
+#characterCreateDiv {
+    background-color: $card-bg;
+    color: $text-color;
+
+    .header-title {
+        border-bottom: 2px solid $accent-color;
+    }
+}
+
+#characterCreateDiv{
+    .ql-container {
+        background-color: #fff;
+        min-height: 200px;
+    }
+
+    .ql-editor {
+        min-height: 150px;
+        padding: 12px;
+        color: black;
+    }
+
+    .ql-toolbar {
+        border-radius: 6px 6px 0 0;
+        background-color: #f8f8f8;
+    }
+
+    .ql-toolbar svg {
+        fill: #EEEEEE;
     }
 }
