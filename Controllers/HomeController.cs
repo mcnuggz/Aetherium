@@ -16,12 +16,16 @@ namespace Aetherium.Controllers
         private readonly SmtpEmailService _emailService;
         private readonly UserService _userService;
         private readonly ApplicationDbContext _context;
+        private readonly ILogger _logger;
+        private readonly PasswordService _passwordService;
 
-        public HomeController(ApplicationDbContext context, SmtpEmailService emailService, UserService userService)
+        public HomeController(ApplicationDbContext context, SmtpEmailService emailService, UserService userService, ILogger logger, PasswordService passwordService)
         {
             _context = context;
             _emailService = emailService;
             _userService = userService;
+            _logger = logger;
+            _passwordService = passwordService;
         }
 
         public IActionResult Index()
@@ -94,11 +98,11 @@ namespace Aetherium.Controllers
                 return View("Index", model);
             }
 
-            var ipAddress = GetClientIP();
+            var ipAddress = _userService.GetClientIP();
 
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == model.Login.Email);
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(model.Login.Password, user.PasswordHash)) {
+            if (user == null || !_passwordService.Verify(model.Login.Password, user.PasswordHash)) {
                 ModelState.AddModelError("", "Invalid login attempt");
                 return View("Index", model);
             }
@@ -116,24 +120,24 @@ namespace Aetherium.Controllers
                 return View("Index", model);
             }
 
-            if (user.IsSuspended)
+            var suspensionMessage = _userService.CheckSuspensionStatus(user);
+            if (suspensionMessage != null)
             {
-                if (user.SuspensionExpirationDate.HasValue && user.SuspensionExpirationDate.Value > DateTime.UtcNow)
-                {
-                    var remaining = user.SuspensionExpirationDate.Value - DateTime.UtcNow;
-                    ModelState.AddModelError(string.Empty, $"Account suspended. Time remaining: {remaining.Hours}h {remaining.Minutes}m.");
-                    return View(model);
-                }
-                else
-                {
-                    user.IsSuspended = false;
-                    user.SuspensionExpirationDate = null;
-                    user.SuspensionDuration = 0;
-                    _context.SaveChanges();
-                }
+                ModelState.AddModelError("", suspensionMessage);
             }
 
             _userService.SetUserId(user.Id, model.Login.RememberMe, user.Role.ToString());
+
+            if (!user.AgreedToCoC)
+            {
+                return RedirectToAction("CodeOfConduct");
+            }
+
+            CharacterModel selectedCharacter = _userService.SelectLoginCharacter(user.Id);
+            if (selectedCharacter == null)
+            {
+                return RedirectToAction("Create", "Character");
+            }
             
             return RedirectToAction("Index", "Dashboard");
         }
@@ -150,28 +154,14 @@ namespace Aetherium.Controllers
                 return View("Index", model);
             }
 
-            string ipAddress = GetClientIP();
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(model.Register.Password);
-            int registrationsToday = _context.Users.Count(u => u.LastKnownIP == ipAddress && u.CreatedAt.Date == DateTime.UtcNow.Date);
-            var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-
-            // Checking for IP bans
-            if (_context.Users.Any(u => u.IsIPBanned && u.LastKnownIP == ipAddress)) {
-                ModelState.AddModelError(string.Empty, "Account Access or Registrations from your IP address are currently blocked. If you feel like this is incorrect, please email administration or reach out to us on Discord.");
-                return View(model);
+            string ipAddress = _userService.GetClientIP();
+            var error = _userService.ValidateRegistration(model.Register.Email, ipAddress);
+            if (error != null) { 
+                ModelState.AddModelError("", error);
             }
 
-            if (_context.Users.Any(u => u.Email == model.Register.Email))
-            {
-                ModelState.AddModelError(string.Empty, "Email is already being used.");
-                return View("Index", model);
-            }
-
-            if (registrationsToday >= 3)
-            {
-                ModelState.AddModelError("", "Too many registrations from this IP today. Try again later.");
-                return View("Index", model);
-            }
+            string passwordHash = _passwordService.Hash(model.Register.Password);
+            var token = UserService.GenerateSecureToken();
 
             var newUser = new UserModel
             {
@@ -194,8 +184,8 @@ namespace Aetherium.Controllers
             HttpContext.Session.SetInt32("UserId", newUser.Id);
             HttpContext.Session.SetString("UserRole", newUser.Role.ToString());
 
-            var confirmUrl = Url.Action("ConfirmEmail", "Home", new { email = model.Register.Email, Token = token }, Request.Scheme);
-            _emailService.SendEmail(newUser.Email, "Confirm Your Account", $"<div><p>Please confirm your account by clicking this link: <a href='{confirmUrl}'>Confirm Email</a></p></div>");
+            var confirmUrl = Url.Action("ConfirmEmail", "Home", new { email = model.Register.Email, Token = token }, Request.Scheme) ?? "";
+            _emailService.SendConfirmationEmail(model.Register.Email, confirmUrl);
 
             return RedirectToAction("RegisterConfirmation");
         }
@@ -209,17 +199,15 @@ namespace Aetherium.Controllers
             
             var user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
 
-            if (user == null) 
-                return RedirectToAction("ForgotPasswordConfirmation");
-            
-            var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            if (user == null) return RedirectToAction("ForgotPasswordConfirmation");
+
+            var token = UserService.GenerateSecureToken();
             user.PasswordResetToken = token;
             user.PasswordResetTokenExpiration = DateTime.UtcNow.AddHours(12);
             _context.SaveChanges();
 
-            var resetLink = Url.Action("ResetPassword", "Home", new { email = user.Email, token = token }, Request.Scheme);
-            var message = $"<p>Click the link to reset your password: <a href='{resetLink}'>Reset Password</a></p><p>This link will expire in <strong>12 hours</strong> for your security.</p>" ;
-            _emailService.SendEmail(user.Email, "Reset Your Password", message);
+            var resetLink = Url.Action("ResetPassword", "Home", new { email = user.Email, token }, Request.Scheme) ?? "";
+            _emailService.SendPasswordResetEmail(user.Email, resetLink);
 
             return RedirectToAction("ForgotPasswordConfirmation");
         }
@@ -247,9 +235,7 @@ namespace Aetherium.Controllers
                 ModelState.AddModelError("", "Your reset token has expired. Please request a new one.");
                 return View(model);
             }
-
-            var hasher = new PasswordHasher<UserModel>();
-            user.PasswordHash = hasher.HashPassword(user, model.NewPassword);
+            _passwordService.SetNewPassword(user, model.NewPassword);
             user.PasswordResetToken = string.Empty;
             user.PasswordResetTokenExpiration = null;
             _context.SaveChanges();
@@ -278,12 +264,5 @@ namespace Aetherium.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
-        #region Private Methods
-        private string GetClientIP()
-        {
-            return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        }
-        #endregion
     }
 }
