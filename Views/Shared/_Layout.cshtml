@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    var showBanner = env == "Development" || env == "Staging";
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -30,11 +34,6 @@
 
     <main class="flex-grow-1">
         <div class="container pb-3">
-            @{
-                var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                var showBanner = env == "Development" || env == "Staging";
-            }
-
             @if (showBanner)
             {
                 <div class="text-center py-2 fw-bold alert alert-warning">

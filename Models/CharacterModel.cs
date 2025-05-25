@@ -11,8 +11,8 @@ namespace Aetherium.Models
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? DisplayName { get; set; }
-        public string AvatarUrl { get; set; }
-        public string BannerUrl { get; set; }
+        public string? AvatarUrl { get; set; }
+        public string? BannerUrl { get; set; }
         public int? BannerOffsetY { get; set; }
         public bool IsBannerGif { get; set; }
         [MaxLength(10000)]

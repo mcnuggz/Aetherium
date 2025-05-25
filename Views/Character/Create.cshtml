@@ -1,4 +1,7 @@
 ﻿@using Aetherium.Enums
+@using Aetherium.Helpers
+@using System.Reflection
+@using System.ComponentModel.DataAnnotations
 @{
     ViewData["Title"] = "Aetherium - Create Character";
 }
@@ -15,100 +18,102 @@
                 }
             </div>
         }
-        <form ref="characterForm" action="/Character/Create" method="post" enctype="multipart/form-data">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Upload Avatar</label>
-                    <input type="file" class="form-control" accept="image/*" @@change="onAvatarChange">
-                </div>
-                <div class="col-md-6 mb-3">
-                        <div v-if="avatarPreview" class="mt-3">
-                            <img id="avatarPreview" :src="avatarPreview" style="max-width: 100%; max-height: 400px;" />
-                        </div>
 
-                        <input type="hidden" name="CroppedAvatarBase64" :value="croppedAvatar" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Upload Banner</label>
-                    <input type="file" class="form-control" name="BannerFile" accept="image/*" @@change="onBannerChange">
-                    
-                </div>
-                <div class="col-md-12 mb-3">
-                    <div v-if="bannerPreview" class="mt-3 banner-wrapper" style="overflow: hidden; height: 250px; position: relative; cursor: grab;"
-                         @@mousedown="startDrag" @@mouseup="stopDrag" @@mousemove="dragBanner">
-                        <img :src="bannerPreview" ref="bannerImage" :style="{ position: 'relative', top: bannerOffsetY + 'px', width: '100%' }" />
+        <!-- Avatar Cropper Modal -->
+        <div class="modal fade" id="avatarCropModal" tabindex="-1" aria-labelledby="avatarCropModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content bg-dark text-light">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">Edit Avatar</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <input type="hidden" name="BannerOffsetY" :value="bannerOffsetY" />
+                    <div class="modal-body text-center">
+                        <div class="crop-preview-container position-relative mb-3">
+                            <img ref="image" :src="preview" class="img-fluid rounded shadow" />
+                            <div class="crop-circle-overlay"></div>
+                        </div>
+                        <label>Zoom</label>
+                        <input type="range" min="0.5" max="3" step="0.01" v-model="zoomLevel" class="form-range" />
+                        <div class="mt-3 d-flex justify-content-center gap-3">
+                            <button type="button" class="btn btn-outline-secondary" @@click="resetCrop">Reset</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @@click="applyCrop">Save</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <hr />
+        </div>
+
+        <form action="/Character/Create" method="post" enctype="multipart/form-data" @@submit="validateBeforeSubmit">
+            <div class="profile-header position-relative mb-5">
+                <div class="banner-container position-relative bg-secondary-subtle d-flex align-items-center justify-content-center shadow" style="height: 200px;">
+                    <span id="bannerPlaceholder">No banner selected</span>
+
+                    <img id="bannerPreview" class="w-100 banner-img position-absolute d-none"
+                         @@mousedown="startDrag" @@mouseup="stopDrag" @@mouseleave="stopDrag" @@mousemove="dragBanner"
+                         :style="{ top: bannerOffsetY + 'px', position: 'absolute' }" />
+
+                    <label class="upload-btn banner-upload">
+                        <i class="fa fa-camera" style="margin-right: 0;"></i>
+                        <input type="file" name="BannerFile" accept="image/*" class="d-none" @@change="onBannerChange" />
+                    </label>
+                </div>
+                <input type="hidden" name="BannerOffsetY" :value="bannerOffsetY" />
+            </div>
+            <div class="avatar-container position-relative bg-secondary-subtle d-flex">
+                <div class="avatar-wrapper position-absolute translate-middle-x">
+                    <img id="avatarPreview" class="rounded-circle avatar-img d-none" />
+
+                    <label class="upload-btn avatar-upload">
+                        <i class="fa fa-camera"></i>
+                        <input type="file" id="avatarInput" accept="image/*" class="d-none" @@change="onAvatarChange" />
+                    </label>
+                </div>
+                <input type="hidden" name="CroppedAvatarBase64" :value="croppedAvatar" />
+            </div>
+
             <div class="row">
+                <div class="col-md-6 mb-3"><label>First Name</label><input class="form-control" name="FirstName" v-model="firstName" /></div>
+                <div class="col-md-6 mb-3"><label>Last Name</label><input class="form-control" name="LastName" v-model="lastName" /></div>
+                <div class="col-md-6 mb-3"><label>Display Name</label><input class="form-control" name="DisplayName" v-model="displayName"/></div>
+
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">First Name</label>
-                    <input type="text" class="form-control" name="FirstName" v-model="firstName" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Last Name</label>
-                    <input type="text" class="form-control" name="LastName" v-model="lastName" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Display Name</label>
-                    <input type="text" class="form-control" name="DisplayName" v-model="displayName" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Custom URL</label>
-                    <input type="text" class="form-control" name="CustomUrl" v-model="customUrl" placeholder="e.g. raven-the-witch" />
-                    <div class="form-text">Choose a unique URL (letters, numbers, dashes only)</div>
-                    <small class="form-text">
-                        Preview: <span id="customUrlPreview">aetherium.com/<em>your-url</em></span>
-                    </small>
+                    <label>Custom URL</label>
+                    <input class="form-control" name="CustomUrl" v-model="customUrl" placeholder="e.g. raven-the-witch" />
+                    <div class="form-text">Preview: <span id="customUrlPreview">aetherium.com/<em>{{ slugPreview }}</em></span></div>
                 </div>
                 <hr />
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Orientation</label>
+                    <label>Orientation</label>
                     <select class="form-select" name="CharacterOrientation" v-model="characterOrientation">
-                        @foreach (var orientation in Enum.GetValues(typeof(OrientationEnum)))
+                        <option value="-1">Select One...</option>
+                        @foreach (var (value, display) in EnumExtensions.GetEnumDisplayValues<OrientationEnum>())
                         {
-                            <option value="@((int)orientation)">@Enum.GetName(typeof(OrientationEnum), orientation)</option>
+                            <option value="@value">@display</option>
                         }
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Gender</label>
+                    <label>Gender</label>
                     <select class="form-select" name="CharacterGender" v-model="characterGender">
-                        @foreach (var gender in Enum.GetValues(typeof(GenderEnum)))
+                        <option value="-1">Select One...</option>
+                        @foreach(var (value, display) in EnumExtensions.GetEnumDisplayValues<GenderEnum>())
                         {
-                            <option value="@((int)gender)">@Enum.GetName(typeof(GenderEnum), gender)</option>
+                            <option value="@value">@display</option>
                         }
+
                     </select>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Pronouns</label>
-                    <input type="text" class="form-control" name="Pronouns" v-model="pronouns" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Species</label>
-                    <input type="text" class="form-control" name="Species" v-model="species" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Verse</label>
-                    <input type="text" class="form-control" name="Verse" v-model="verse" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Occupation</label>
-                    <input type="text" class="form-control" name="Occupation" v-model="occupation" />
-                </div>
+                <div class="col-md-6 mb-3"><label>Pronouns</label><input class="form-control" name="Pronouns" v-model="pronouns" /></div>
+                <div class="col-md-6 mb-3"><label>Species</label><input class="form-control" name="Species" v-model="species" /></div>
+                <div class="col-md-6 mb-3"><label>Verse</label><input class="form-control" name="Verse" v-model="verse" /></div>
+                <div class="col-md-6 mb-3"><label>Occupation</label><input class="form-control" name="Occupation" v-model="occupation" /></div>
             </div>
             <hr />
             <div class="mb-3">
-                <label class="form-label">Character Bio</label>
+                <label class="pb-1">Character Bio (max. 10,000 characters)</label>
                 <div id="bioEditor"></div>
-                <div class="text-end small mt-1">
-                    <span id="bioCharCount">0</span> / 10000 characters
-                </div>
-                <input type="hidden" name="CharacterBio" :value="characterBio">
+                <div class="text-end small mt-1"><span id="bioCharCount">0</span> / 10,000 characters</div>
+                <input type="hidden" name="CharacterBio" :value="characterBio" />
             </div>
 
             <button type="submit" class="btn btn-primary">Create Character</button>
@@ -118,14 +123,13 @@
 
 @section Scripts {
     <script>
-        const { createApp, ref, onMounted, nextTick, watch } = Vue;
+        const { createApp, ref, onMounted, nextTick } = Vue;
 
         createApp({
             setup() {
-                const characterForm = ref(null);
-                const displayName = ref('');
                 const firstName = ref('');
                 const lastName = ref('');
+                const displayName = ref('');
                 const pronouns = ref('');
                 const species = ref('');
                 const verse = ref('');
@@ -133,61 +137,51 @@
                 const characterGender = ref(0);
                 const characterOrientation = ref(0);
                 const customUrl = ref('');
-
-                const bannerOffsetY = ref(0);
-                const bannerPreview = ref('');
-                const isDragging = ref(false);
-                const dragStartY = ref(0);
-
                 const characterBio = ref('');
+
                 const avatarPreview = ref('');
                 const croppedAvatar = ref('');
                 let cropper = null;
-                let quill;
+
+                const bannerPreview = ref('');
+                const bannerOffsetY = ref(0);
+                const isDragging = ref(false);
+                const dragStartY = ref(0);
 
                 onMounted(() => {
-                    quill = new Quill('#bioEditor', { theme: 'snow' });
+                    const quill = new Quill('#bioEditor', { theme: 'snow' });
 
-                    // Update live character count
                     quill.on('text-change', function () {
                         characterBio.value = quill.root.innerHTML;
-
-                        const plainText = quill.getText().trim();
-                        const $countEl = $('#bioCharCount');
-                        const length = plainText.length;
+                        
+                        const text = quill.getText().trim();
+                        const countEl = $('#bioCharCount');
+                        const length = text.length;
 
                         $countEl.text(length);
-                        $countEl.toggleClass('text-danger', length > 10000).toggleClass('text-warning', length > 9500 && length <= 10000);
+                        $countEl
+                            .toggleClass('text-danger', length > 10000)
+                            .toggleClass('text-warning', length > 9500 && length <= 10000);
+
+                        $('#errorAlert').fadeOut('fast');
                     });
 
                     $('#bioEditor').on('click', function () {
-                        quill.focus(); // Programmatically focuses the Quill editor
-                    });
-
-                    // Manual submit binding
-                    $(characterForm.value).on('submit', (event) => {
-                        const length = quill.getText().trim().length;
-                        if (length > 10000) {
-                            alert("Your Bio is too long. Please limit to 10,000 characters.");
-                            event.preventDefault();
-                        }
+                        quill.focus();
                     });
                 });
 
-                // Update custom URL preview
-                watch(customUrl, (newVal) => {
-                    const slug = newVal.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-
-                    $('#customUrlPreview').html(`aetherium.com/<em>${slug}</em>`);
+                const slugPreview = Vue.computed(() => {
+                    return customUrl.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
                 });
 
                 function onAvatarChange(event) {
                     const file = event.target.files[0];
                     if (!file) return;
 
-                    const fReader = new FileReader();
-                    fReader.onload = () => {
-                        avatarPreview.value = fReader.result;
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        avatarPreview.value = reader.result;
                         nextTick(() => {
                             const image = document.getElementById('avatarPreview');
                             if (cropper) cropper.destroy();
@@ -198,11 +192,12 @@
                                 crop() {
                                     const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
                                     croppedAvatar.value = canvas.toDataURL('image/png');
+                                    document.querySelector('input[name="CroppedAvatarBase64"]').value = croppedAvatar.value;
                                 }
                             });
                         });
                     };
-                    fReader.readAsDataURL(file);
+                    reader.readAsDataURL(file);
                 }
 
                 function onBannerChange(event) {
@@ -210,8 +205,14 @@
                     if (!file) return;
 
                     const reader = new FileReader();
-                    reader.onload = () => {
+                    reader.onload = function () {
                         bannerPreview.value = reader.result;
+                        bannerOffsetY.value = 0;
+
+                        document.getElementById('bannerPlaceholder')?.classList.add('d-none');
+                        const bannerImg = document.getElementById('bannerPreview');
+                        bannerImg.src = bannerPreview.value;
+                        bannerImg.classList.remove('d-none');
                     };
                     reader.readAsDataURL(file);
                 }
@@ -221,28 +222,39 @@
                     dragStartY.value = event.clientY;
                 }
 
+                function dragBanner(event) {
+                    if (!isDragging.value) return;
+                    const delta = event.clientY - dragStartY.value;
+                    bannerOffsetY.value += delta;
+                    dragStartY.value = event.clientY;
+                }
+
                 function stopDrag() {
                     isDragging.value = false;
                 }
 
-                function dragBanner(event) {
-                    if (!isDragging.value) return;
-                    const deltaY = event.clientY - dragStartY.value;
-                    bannerOffsetY.value += deltaY;
-                    dragStartY.value = event.clientY;
-                }
-
                 return {
-                    characterForm, displayName, firstName, lastName, pronouns,
-                    species, verse, occupation, characterGender,
-                    characterOrientation, customUrl,
-                    bannerOffsetY, bannerPreview,
-                    characterBio, avatarPreview, croppedAvatar,
-                    onAvatarChange, onBannerChange,
-                    startDrag, stopDrag, dragBanner
+                    firstName, lastName, displayName, pronouns, species,
+                    verse, occupation, characterGender, characterOrientation, customUrl, slugPreview, 
+                    characterBio, avatarPreview, croppedAvatar, bannerPreview,
+                    bannerOffsetY, isDragging, dragStartY,
+                    onAvatarChange, onBannerChange, startDrag, dragBanner, stopDrag
                 };
             }
         }).mount('#characterApp');
     </script>
+    <script>
+        $(function () {
+            const $errorAlert = $('#errorAlert');
+            if ($errorAlert.length) {
+                setTimeout(() => {
+                    $errorAlert.fadeOut('fast');
+                }, 5000);
 
+                $('input, textarea, select').one('input', function () {
+                    $errorAlert.fadeOut('fast');
+                });
+            }
+        });
+    </script>
 }

@@ -8,9 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ClientApp\**" />
     <Compile Remove="wwwroot\NewFolder\**" />
+    <Content Remove="ClientApp\**" />
     <Content Remove="wwwroot\NewFolder\**" />
+    <EmbeddedResource Remove="ClientApp\**" />
     <EmbeddedResource Remove="wwwroot\NewFolder\**" />
+    <None Remove="ClientApp\**" />
     <None Remove="wwwroot\NewFolder\**" />
   </ItemGroup>
 

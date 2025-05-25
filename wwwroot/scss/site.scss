@@ -98,8 +98,7 @@ body {
 }
 
 #registerConfirmDiv, 
-#codeOfConductDiv, 
-#characterCreateDiv {
+#codeOfConductDiv {
     background-color: $card-bg;
     color: $text-color;
 
@@ -109,9 +108,142 @@ body {
 }
 
 #characterCreateDiv {
+    background-color: $card-bg;
+    color: $text-color;
+
+    .profile-header {
+        position: relative;
+        margin-bottom: 3rem;
+
+        .banner-container {
+            height: 250px;
+            background-color: var(--bs-secondary-bg-subtle);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            #bannerPlaceholder {
+                color: #999;
+                font-size: 1.1rem;
+            }
+
+            .banner-img {
+                object-fit: cover;
+                width: 100%;
+                height: auto;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 1;
+            }
+
+            .upload-btn.banner-upload {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                background: rgba(0, 0, 0, 0.5);
+                color: #fff;
+                padding: 5px 10px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.9rem;
+                z-index: 2;
+
+                i {
+                    margin-right: 4px;
+                }
+            }
+        }
+
+        .avatar-wrapper {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 120px;
+            z-index: 3;
+
+            .avatar-img {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 4px solid #fff;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            }
+
+            .upload-btn.avatar-upload {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                background: rgba(0, 0, 0, 0.6);
+                color: white;
+                padding: 4px 6px;
+                border-radius: 50%;
+                font-size: 0.8rem;
+                cursor: pointer;
+
+                i {
+                    margin: 0;
+                }
+            }
+        }
+    }
+
+    #avatarCropModal {
+        .modal-content {
+            background-color: #222;
+            border: none;
+
+            .modal-title {
+                color: #fff;
+            }
+
+            .crop-preview-container {
+                position: relative;
+                width: 300px;
+                height: 300px;
+                margin: 0 auto;
+
+                img {
+                    max-width: 100%;
+                    max-height: 100%;
+                    border-radius: 50%;
+                }
+
+                .crop-circle-overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 50%;
+                    border: 2px dashed #00ADB5;
+                    pointer-events: none;
+                    z-index: 5;
+                }
+            }
+
+            .form-range {
+                width: 60%;
+                margin: 0 auto;
+                display: block;
+            }
+        }
+    }
+    
+    #bioCharCount {
+        font-weight: 500;
+        transition: color 0.2s ease-in-out;
+    }
+
     .ql-container {
         background-color: #fff;
         min-height: 200px;
+
     }
 
     .ql-editor {
@@ -130,7 +262,7 @@ body {
         fill: #EEEEEE;
     }
 
-    .form-text{
+    .form-text {
         color: $text-color;
     }
 }
