@@ -86,23 +86,105 @@ body {
 #characterCreateDiv {
   background-color: #393E46;
   color: #EEEEEE;
+  /*.avatar-container {
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      margin-top: -75px;
+
+      .avatar-wrapper {
+          width: 150px;
+          height: 150px;
+          position: relative;
+          background-color: rgba(41, 41, 41, 0.85);
+          border: 2px solid rgba(41, 41, 41, 0.85);
+          border-radius: 4px;
+
+          &:hover {
+              background-color: rgba(64, 64, 64, 0.85);
+          }
+
+          .avatar-img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              border-radius: 4px;
+              border: 2px solid $accent-color;
+              box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+          }
+
+          .upload-btn.avatar-upload {
+              position: absolute;
+              bottom: 0;
+              left: 50%;
+              transform: translateX(-50%);
+              background: rgba(0, 0, 0, 0.6);
+              padding: 6px 8px;
+              border-radius: 50%;
+              cursor: pointer;
+              color: #fff;
+              font-size: 0.9rem;
+              z-index: 3;
+
+              i {
+                  margin: 0;
+              }
+          }
+      }
+  }*/
+}
+#characterCreateDiv .avatar-overlap {
+  position: relative;
+  margin-top: -60px;
+  z-index: 10;
+}
+#characterCreateDiv .avatar-wrapper {
+  width: 200px;
+  height: 200px;
+  border: 2px solid #00ADB5;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+#characterCreateDiv .avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+#characterCreateDiv .upload-btn.avatar-upload {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  z-index: 2;
+}
+#characterCreateDiv .upload-btn.avatar-upload i {
+  margin: 0;
 }
 #characterCreateDiv .profile-header {
   position: relative;
   margin-bottom: 3rem;
 }
 #characterCreateDiv .profile-header .banner-container {
-  height: 250px;
+  height: 200px;
   background-color: var(--bs-secondary-bg-subtle);
   overflow: hidden;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  z-index: 1;
 }
 #characterCreateDiv .profile-header .banner-container #bannerPlaceholder {
   color: #999;
   font-size: 1.1rem;
+  z-index: 16;
 }
 #characterCreateDiv .profile-header .banner-container .banner-img {
   object-fit: cover;
@@ -112,10 +194,14 @@ body {
   top: 0;
   left: 0;
   z-index: 1;
+  cursor: grab;
+}
+#characterCreateDiv .profile-header .banner-container .banner-img:active {
+  cursor: grabbing;
 }
 #characterCreateDiv .profile-header .banner-container .upload-btn.banner-upload {
   position: absolute;
-  bottom: 10px;
+  top: 10px;
   right: 10px;
   background: rgba(0, 0, 0, 0.5);
   color: #fff;
@@ -128,70 +214,22 @@ body {
 #characterCreateDiv .profile-header .banner-container .upload-btn.banner-upload i {
   margin-right: 4px;
 }
-#characterCreateDiv .profile-header .avatar-wrapper {
-  position: absolute;
-  bottom: -60px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 120px;
-  z-index: 3;
-}
-#characterCreateDiv .profile-header .avatar-wrapper .avatar-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-#characterCreateDiv .profile-header .avatar-wrapper .upload-btn.avatar-upload {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 4px 6px;
-  border-radius: 50%;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-#characterCreateDiv .profile-header .avatar-wrapper .upload-btn.avatar-upload i {
-  margin: 0;
-}
-#characterCreateDiv #avatarCropModal .modal-content {
+#characterCreateDiv .modal-content {
   background-color: #222;
   border: none;
 }
-#characterCreateDiv #avatarCropModal .modal-content .modal-title {
+#characterCreateDiv .modal-content .modal-title {
   color: #fff;
 }
-#characterCreateDiv #avatarCropModal .modal-content .crop-preview-container {
-  position: relative;
-  width: 300px;
-  height: 300px;
-  margin: 0 auto;
-}
-#characterCreateDiv #avatarCropModal .modal-content .crop-preview-container img {
-  max-width: 100%;
-  max-height: 100%;
-  border-radius: 50%;
-}
-#characterCreateDiv #avatarCropModal .modal-content .crop-preview-container .crop-circle-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  border: 2px dashed #00ADB5;
-  pointer-events: none;
-  z-index: 5;
-}
-#characterCreateDiv #avatarCropModal .modal-content .form-range {
+#characterCreateDiv .modal-content .form-range {
   width: 60%;
   margin: 0 auto;
   display: block;
+}
+@media (max-width: 768px) {
+  #characterCreateDiv .modal-content .form-range {
+    width: 90%;
+  }
 }
 #characterCreateDiv #bioCharCount {
   font-weight: 500;
@@ -204,16 +242,22 @@ body {
 #characterCreateDiv .ql-editor {
   max-height: 200px;
   padding: 12px;
-  color: black;
+  color: #393E46;
   overflow-y: auto;
 }
 #characterCreateDiv .ql-toolbar {
   border-radius: 6px 6px 0 0;
   background-color: #f8f8f8;
 }
-#characterCreateDiv .ql-toolbar svg {
+#characterCreateDiv .ql-toolbar svg,
+#characterCreateDiv .form-text {
   fill: #EEEEEE;
 }
 #characterCreateDiv .form-text {
   color: #EEEEEE;
+}
+#characterCreateDiv .banner-container,
+#characterCreateDiv .banner-img {
+  user-select: none;
+  -webkit-user-drag: none;
 }

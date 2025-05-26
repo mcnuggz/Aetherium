@@ -19,24 +19,18 @@
             </div>
         }
 
-        <!-- Avatar Cropper Modal -->
+        <!-- Avatar Modal -->
         <div class="modal fade" id="avatarCropModal" tabindex="-1" aria-labelledby="avatarCropModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content bg-dark text-light">
                     <div class="modal-header border-0">
-                        <h5 class="modal-title">Edit Avatar</h5>
+                        <h5 class="modal-title">Preview</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body text-center">
-                        <div class="crop-preview-container position-relative mb-3">
-                            <img ref="image" :src="preview" class="img-fluid rounded shadow" />
-                            <div class="crop-circle-overlay"></div>
-                        </div>
-                        <label>Zoom</label>
-                        <input type="range" min="0.5" max="3" step="0.01" v-model="zoomLevel" class="form-range" />
-                        <div class="mt-3 d-flex justify-content-center gap-3">
-                            <button type="button" class="btn btn-outline-secondary" @@click="resetCrop">Reset</button>
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @@click="applyCrop">Save</button>
+                        <img :src="avatarPreview" class="img-fluid" style="max-width: 500px;" />
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @@click="confirmAvatar">Save</button>
                         </div>
                     </div>
                 </div>
@@ -45,36 +39,44 @@
 
         <form action="/Character/Create" method="post" enctype="multipart/form-data" @@submit="validateBeforeSubmit">
             <div class="profile-header position-relative mb-5">
-                <div class="banner-container position-relative bg-secondary-subtle d-flex align-items-center justify-content-center shadow" style="height: 200px;">
+                <div class="banner-container position-relative bg-secondary-subtle d-flex align-items-center justify-content-center shadow">
                     <span id="bannerPlaceholder">No banner selected</span>
 
                     <img id="bannerPreview" class="w-100 banner-img position-absolute d-none"
-                         @@mousedown="startDrag" @@mouseup="stopDrag" @@mouseleave="stopDrag" @@mousemove="dragBanner"
-                         :style="{ top: bannerOffsetY + 'px', position: 'absolute' }" />
+                            @@mousedown="startBannerDrag"
+                            @@mouseup="stopBannerDrag"
+                            @@mouseleave="stopBannerDrag"
+                            @@mousemove="dragBanner"
+                            @@dragstart.prevent
+                            :style="{ top: bannerOffsetY + 'px', position: 'absolute' }" />
 
                     <label class="upload-btn banner-upload">
-                        <i class="fa fa-camera" style="margin-right: 0;"></i>
-                        <input type="file" name="BannerFile" accept="image/*" class="d-none" @@change="onBannerChange" />
+                        <i class="fa-solid fa-file-arrow-up" style="margin-right: 0;"></i>
+                        <input type="file"
+                                ref="bannerFileInput"
+                                class="d-none"
+                                name="BannerFile"
+                                accept="image/*"
+                                @@change="onBannerChange" />
                     </label>
                 </div>
-                <input type="hidden" name="BannerOffsetY" :value="bannerOffsetY" />
-            </div>
-            <div class="avatar-container position-relative bg-secondary-subtle d-flex">
-                <div class="avatar-wrapper position-absolute translate-middle-x">
-                    <img id="avatarPreview" class="rounded-circle avatar-img d-none" />
+                <div class="avatar-overlap d-flex">
+                    <div class="avatar-wrapper position-relative">
+                        <img id="avatarPreview" class="avatar-img d-none" />
 
-                    <label class="upload-btn avatar-upload">
-                        <i class="fa fa-camera"></i>
-                        <input type="file" id="avatarInput" accept="image/*" class="d-none" @@change="onAvatarChange" />
-                    </label>
+                        <label class="upload-btn avatar-upload">
+                            <i class="fa-solid fa-file-arrow-up"></i>
+                            <input type="file" id="avatarInput" accept="image/*" class="d-none" @@change="loadAvatar" ref="avatarFileInput" />
+                        </label>
+                    </div>
                 </div>
                 <input type="hidden" name="CroppedAvatarBase64" :value="croppedAvatar" />
-            </div>
 
+            </div>
             <div class="row">
                 <div class="col-md-6 mb-3"><label>First Name</label><input class="form-control" name="FirstName" v-model="firstName" /></div>
                 <div class="col-md-6 mb-3"><label>Last Name</label><input class="form-control" name="LastName" v-model="lastName" /></div>
-                <div class="col-md-6 mb-3"><label>Display Name</label><input class="form-control" name="DisplayName" v-model="displayName"/></div>
+                <div class="col-md-6 mb-3"><label>Display Name</label><input class="form-control" name="DisplayName" v-model="displayName" /></div>
 
                 <div class="col-md-6 mb-3">
                     <label>Custom URL</label>
@@ -85,7 +87,7 @@
                 <div class="col-md-6 mb-3">
                     <label>Orientation</label>
                     <select class="form-select" name="CharacterOrientation" v-model="characterOrientation">
-                        <option value="-1">Select One...</option>
+                        <option selected="selected" value="-1">Select One...</option>
                         @foreach (var (value, display) in EnumExtensions.GetEnumDisplayValues<OrientationEnum>())
                         {
                             <option value="@value">@display</option>
@@ -95,8 +97,8 @@
                 <div class="col-md-6 mb-3">
                     <label>Gender</label>
                     <select class="form-select" name="CharacterGender" v-model="characterGender">
-                        <option value="-1">Select One...</option>
-                        @foreach(var (value, display) in EnumExtensions.GetEnumDisplayValues<GenderEnum>())
+                        <option selected="selected" value="-1">Select One...</option>
+                        @foreach (var (value, display) in EnumExtensions.GetEnumDisplayValues<GenderEnum>())
                         {
                             <option value="@value">@display</option>
                         }
@@ -123,10 +125,11 @@
 
 @section Scripts {
     <script>
-        const { createApp, ref, onMounted, nextTick } = Vue;
+        const { createApp, ref, onMounted, nextTick, watch, computed } = Vue;
 
         createApp({
             setup() {
+                // Character info
                 const firstName = ref('');
                 const lastName = ref('');
                 const displayName = ref('');
@@ -139,13 +142,15 @@
                 const customUrl = ref('');
                 const characterBio = ref('');
 
+                // Avatar cropping (manual)
                 const avatarPreview = ref('');
                 const croppedAvatar = ref('');
-                let cropper = null;
 
+                // Banner dragging
                 const bannerPreview = ref('');
                 const bannerOffsetY = ref(0);
-                const isDragging = ref(false);
+                const bannerFileInput = ref(null);
+                const draggingBanner = ref(false);
                 const dragStartY = ref(0);
 
                 onMounted(() => {
@@ -153,9 +158,9 @@
 
                     quill.on('text-change', function () {
                         characterBio.value = quill.root.innerHTML;
-                        
+
                         const text = quill.getText().trim();
-                        const countEl = $('#bioCharCount');
+                        const $countEl = $('#bioCharCount');
                         const length = text.length;
 
                         $countEl.text(length);
@@ -166,83 +171,102 @@
                         $('#errorAlert').fadeOut('fast');
                     });
 
-                    $('#bioEditor').on('click', function () {
-                        quill.focus();
-                    });
+                    $('#bioEditor').on('click', () => quill.focus());
                 });
 
-                const slugPreview = Vue.computed(() => {
+                const slugPreview = computed(() => {
                     return customUrl.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
                 });
 
-                function onAvatarChange(event) {
+                function loadAvatar(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        avatarPreview.value = reader.result;
+                        offsetX.value = 0;
+                        offsetY.value = 0;
+
+                        nextTick(() => {
+                            const modal = new bootstrap.Modal(document.getElementById('avatarCropModal'));
+                            modal.show();
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+
+                function confirmAvatar() {
+                    croppedAvatar.value = avatarPreview.value;
+                    $("#avatarPreview").attr('src', croppedAvatar.value).removeClass('d-none');
+                }
+
+                function loadAvatar(event) {
                     const file = event.target.files[0];
                     if (!file) return;
 
                     const reader = new FileReader();
                     reader.onload = () => {
                         avatarPreview.value = reader.result;
+
                         nextTick(() => {
-                            const image = document.getElementById('avatarPreview');
-                            if (cropper) cropper.destroy();
-                            cropper = new Cropper(image, {
-                                aspectRatio: 1,
-                                viewMode: 1,
-                                autoCropArea: 1,
-                                crop() {
-                                    const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
-                                    croppedAvatar.value = canvas.toDataURL('image/png');
-                                    document.querySelector('input[name="CroppedAvatarBase64"]').value = croppedAvatar.value;
-                                }
-                            });
+                            const modalEl = $('#avatarCropModal');
+                            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                            modal.show();
                         });
                     };
                     reader.readAsDataURL(file);
                 }
 
-                function onBannerChange(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
+                function onBannerChange(e) {
+                    const files = e?.target?.files;
+                    if (!files || files.length === 0) return;
 
+                    const file = files[0];
                     const reader = new FileReader();
+
                     reader.onload = function () {
                         bannerPreview.value = reader.result;
                         bannerOffsetY.value = 0;
 
-                        document.getElementById('bannerPlaceholder')?.classList.add('d-none');
                         const bannerImg = document.getElementById('bannerPreview');
-                        bannerImg.src = bannerPreview.value;
-                        bannerImg.classList.remove('d-none');
+                        if (bannerImg) {
+                            bannerImg.src = bannerPreview.value;
+                            bannerImg.classList.remove('d-none');
+                        }
+
+                        document.getElementById('bannerPlaceholder')?.classList.add('d-none');
                     };
+
                     reader.readAsDataURL(file);
                 }
 
-                function startDrag(event) {
-                    isDragging.value = true;
-                    dragStartY.value = event.clientY;
+                function startBannerDrag(e) {
+                    draggingBanner.value = true;
+                    dragStartY.value = e.clientY;
                 }
 
-                function dragBanner(event) {
-                    if (!isDragging.value) return;
-                    const delta = event.clientY - dragStartY.value;
+                function dragBanner(e) {
+                    if (!draggingBanner.value) return;
+                    const delta = e.clientY - dragStartY.value;
                     bannerOffsetY.value += delta;
-                    dragStartY.value = event.clientY;
+                    dragStartY.value = e.clientY;
                 }
 
-                function stopDrag() {
-                    isDragging.value = false;
+                function stopBannerDrag() {
+                    draggingBanner.value = false;
                 }
 
                 return {
-                    firstName, lastName, displayName, pronouns, species,
-                    verse, occupation, characterGender, characterOrientation, customUrl, slugPreview, 
-                    characterBio, avatarPreview, croppedAvatar, bannerPreview,
-                    bannerOffsetY, isDragging, dragStartY,
-                    onAvatarChange, onBannerChange, startDrag, dragBanner, stopDrag
+                    firstName, lastName, displayName, pronouns, species, verse, occupation,
+                    characterGender, characterOrientation, customUrl, slugPreview, characterBio,
+                    avatarPreview, croppedAvatar, loadAvatar, confirmAvatar,
+                    bannerPreview, bannerOffsetY, onBannerChange, startBannerDrag, dragBanner, stopBannerDrag, bannerFileInput
                 };
             }
         }).mount('#characterApp');
     </script>
+
     <script>
         $(function () {
             const $errorAlert = $('#errorAlert');
