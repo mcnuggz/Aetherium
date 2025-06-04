@@ -1,8 +1,5 @@
 ﻿using Aetherium.Data;
 using Aetherium.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 
 namespace Aetherium.Services
@@ -21,12 +18,13 @@ namespace Aetherium.Services
             var ctx = _contextAccessor.HttpContext;
             var sessionUserId = ctx?.Session.GetInt32("UserId");
 
-            var isDev = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-            if (sessionUserId != null || isDev)
+            if (sessionUserId != null)
+            {
                 return sessionUserId;
+            }
+                
 
-            if (ctx?.Request.Cookies.TryGetValue("UserId", out string userIdValue) == true &&
-            int.TryParse(userIdValue, out int userId))
+            if (ctx?.Request.Cookies.TryGetValue("UserId", out string? userIdValue) == true && int.TryParse(userIdValue, out int userId))
             {
                 return userId;
             }
@@ -122,6 +120,24 @@ namespace Aetherium.Services
         public string GetClientIP()
         {
             return _contextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        }
+
+        public void ClearUserSession()
+        {
+            var session = _contextAccessor.HttpContext?.Session;
+            if (session != null) { 
+                session.Clear();
+            }
+        }
+
+        public string GetLoggedInCharacterAvatarUrl(int userId)
+        {
+            var character = _context.Characters
+                .Where(c => c.UserAccountId == userId && !c.IsArchived && !string.IsNullOrWhiteSpace(c.AvatarUrl))
+                .FirstOrDefault();
+
+            return character?.AvatarUrl;
+            
         }
     }
 }

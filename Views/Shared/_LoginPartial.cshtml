@@ -1,0 +1,31 @@
+﻿@using Aetherium.Services
+@inject UserService _userService
+@{
+    var userId = _userService.GetUserId();
+    var isLoggedIn = userId != null;
+    var avatarUrl = isLoggedIn 
+        ? _userService.GetLoggedInCharacterAvatarUrl(userId.Value) 
+        ?? "/images/default-avatar.png" 
+        : "/images/default-avatar.png";
+}
+<ul class="navbar-nav">
+    @if(isLoggedIn) 
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="@avatarUrl" class="rounded-circle" alt="Avatar" width="32" height="32" />
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                @* <li><a class="dropdown-item" asp-controller="Character" asp-action="MyCharacters">My Characters</a></li> *@
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                    <form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="dropdown-item">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    } 
+</ul>

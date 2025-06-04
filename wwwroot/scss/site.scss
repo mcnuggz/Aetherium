@@ -20,6 +20,10 @@ body {
     font-family: $font-main;
 }
 
+#logoutBtn{
+    color: $text-color;
+}
+
 .btn-primary {
     background-color: $accent-color;
     color: $primary-bg;
@@ -122,8 +126,7 @@ body {
     .avatar-wrapper {
         width: 200px;
         height: 200px;
-        border: 2px solid $accent-color;
-        background: #fff;
+        background: #555;
         box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
 

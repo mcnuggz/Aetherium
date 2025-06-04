@@ -26,6 +26,8 @@ namespace Aetherium.Controllers
 
         public IActionResult Index()
         {
+            var userId = _userService.GetUserId();
+            if(userId != null) { return RedirectToAction("Index", "Dashboard"); }
             return View();
         }
 
@@ -133,7 +135,9 @@ namespace Aetherium.Controllers
             {
                 return RedirectToAction("Create", "Character");
             }
-            
+            HttpContext.Session.SetInt32("UserId", user.Id);
+            HttpContext.Session.SetString("UserRole", user.Role.ToString());
+
             return RedirectToAction("Index", "Dashboard");
         }
 
@@ -252,6 +256,15 @@ namespace Aetherium.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("Create", "Character");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Logout()
+        {
+            _userService.ClearUserSession();
+            Response.Cookies.Delete("YourAuthCookieName"); // Optional: if you use a cookie fallback
+            return RedirectToAction("Index", "Home");
         }
         
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
