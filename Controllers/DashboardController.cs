@@ -1,4 +1,5 @@
 ﻿using Aetherium.Data;
+using Aetherium.Models.ViewModels;
 using Aetherium.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,11 +23,18 @@ namespace Aetherium.Controllers
 
             var userCharacters = _context.Characters
                 .Where(c => c.UserAccountId == userId && !c.IsArchived)
-                .OrderByDescending(c => c.CreatedOn)
+                .OrderByDescending(c => c.LastLoggedIn)
                 .ToList();
 
             if (!userCharacters.Any()) { return RedirectToAction("Create", "Character"); }
-            return View(userCharacters);
+
+            var viewModel = new DashboardViewModel
+            {
+                CurrentCharacter = userCharacters.First(),
+                AllCharacters = userCharacters
+            };
+
+            return View(viewModel);
         }
     }
 }

@@ -35,6 +35,40 @@ body {
     }
 }
 
+.fillWidth{
+    width: 100%;
+}
+
+.halfWidth{
+    width: 50%;
+}
+
+.pointerCursor{
+    cursor: pointer;
+}
+
+.ql-container {
+    background-color: #fff;
+    min-height: 200px;
+}
+
+.ql-editor {
+    max-height: 200px;
+    padding: 12px;
+    color: $card-bg;
+    overflow-y: auto;
+}
+
+.ql-toolbar {
+    border-radius: 6px 6px 0 0;
+    background-color: #f8f8f8;
+}
+
+.ql-toolbar svg,
+.form-text {
+    fill: $text-color;
+}
+
 #landingPage {
     .nav-tabs {
         background-color: $card-bg;
@@ -62,7 +96,8 @@ body {
 
 }
 
-#resetPasswordCard, #forgotPasswordCard {
+#resetPasswordCard, 
+#forgotPasswordCard {
     background-color: $card-bg;
     color: $text-color;
 
@@ -154,53 +189,6 @@ body {
         }
     }
 
-    /*.avatar-container {
-        z-index: 20;
-        display: flex;
-        justify-content: center;
-        margin-top: -75px;
-
-        .avatar-wrapper {
-            width: 150px;
-            height: 150px;
-            position: relative;
-            background-color: rgba(41, 41, 41, 0.85);
-            border: 2px solid rgba(41, 41, 41, 0.85);
-            border-radius: 4px;
-
-            &:hover {
-                background-color: rgba(64, 64, 64, 0.85);
-            }
-
-            .avatar-img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 4px;
-                border: 2px solid $accent-color;
-                box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-            }
-
-            .upload-btn.avatar-upload {
-                position: absolute;
-                bottom: 0;
-                left: 50%;
-                transform: translateX(-50%);
-                background: rgba(0, 0, 0, 0.6);
-                padding: 6px 8px;
-                border-radius: 50%;
-                cursor: pointer;
-                color: #fff;
-                font-size: 0.9rem;
-                z-index: 3;
-
-                i {
-                    margin: 0;
-                }
-            }
-        }
-    }*/
-    // Banner Header Section
     .profile-header {
         position: relative;
         margin-bottom: 3rem;
@@ -255,7 +243,7 @@ body {
             }
         }
     }
-    // Modal
+
     .modal-content {
         background-color: #222;
         border: none;
@@ -274,33 +262,13 @@ body {
             }
         }
     }
-    // Quill Editor
+
     #bioCharCount {
         font-weight: 500;
         transition: color 0.2s ease-in-out;
     }
 
-    .ql-container {
-        background-color: #fff;
-        min-height: 200px;
-    }
 
-    .ql-editor {
-        max-height: 200px;
-        padding: 12px;
-        color: $card-bg;
-        overflow-y: auto;
-    }
-
-    .ql-toolbar {
-        border-radius: 6px 6px 0 0;
-        background-color: #f8f8f8;
-    }
-
-    .ql-toolbar svg,
-    .form-text {
-        fill: $text-color;
-    }
 
     .form-text {
         color: $text-color;
@@ -310,5 +278,71 @@ body {
     .banner-img {
         user-select: none;
         -webkit-user-drag: none;
+    }
+}
+
+#dashboardMain {
+    #characterSwap {
+        background-color: $text-color;
+        color: $card-bg;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        cursor: pointer;
+
+        .dashboard-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .dashboard-avatar-wrapper {
+            width: 75px;
+            height: 75px;
+            position: relative;
+        }
+
+        #swapArrows {
+            background-color: #d0d0d0;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+        }
+
+        .online-dot {
+            position: absolute;
+            bottom: 0px;
+            right: 5px;
+            width: 15px;
+            height: 15px;
+            background-color: $accent-color;
+            border: 2px solid white;
+            border-radius: 50%;
+        }
+    }
+
+    #dashboardNav {
+        background-color: $text-color;
+        color: $card-bg;
+        border-radius: 3px;
+
+        .navCounter {
+            background-color: #d0d0d0;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            line-height: 25px;
+        }
+    }
+
+    .fixed-icon {
+        width: 25px;
+        display: inline-block;
+        text-align: center;
     }
 }

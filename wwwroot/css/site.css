@@ -22,6 +22,40 @@ body {
   box-shadow: 0 0 10px #00ADB5;
 }
 
+.fillWidth {
+  width: 100%;
+}
+
+.halfWidth {
+  width: 50%;
+}
+
+.pointerCursor {
+  cursor: pointer;
+}
+
+.ql-container {
+  background-color: #fff;
+  min-height: 200px;
+}
+
+.ql-editor {
+  max-height: 200px;
+  padding: 12px;
+  color: #393E46;
+  overflow-y: auto;
+}
+
+.ql-toolbar {
+  border-radius: 6px 6px 0 0;
+  background-color: #f8f8f8;
+}
+
+.ql-toolbar svg,
+.form-text {
+  fill: #EEEEEE;
+}
+
 #landingPage .nav-tabs {
   background-color: #393E46;
   border-bottom: none;
@@ -42,11 +76,13 @@ body {
   color: #EEEEEE;
 }
 
-#resetPasswordCard, #forgotPasswordCard {
+#resetPasswordCard,
+#forgotPasswordCard {
   background-color: #393E46;
   color: #EEEEEE;
 }
-#resetPasswordCard a, #forgotPasswordCard a {
+#resetPasswordCard a,
+#forgotPasswordCard a {
   color: #00ADB5;
 }
 
@@ -90,52 +126,6 @@ body {
 #characterCreateDiv {
   background-color: #393E46;
   color: #EEEEEE;
-  /*.avatar-container {
-      z-index: 20;
-      display: flex;
-      justify-content: center;
-      margin-top: -75px;
-
-      .avatar-wrapper {
-          width: 150px;
-          height: 150px;
-          position: relative;
-          background-color: rgba(41, 41, 41, 0.85);
-          border: 2px solid rgba(41, 41, 41, 0.85);
-          border-radius: 4px;
-
-          &:hover {
-              background-color: rgba(64, 64, 64, 0.85);
-          }
-
-          .avatar-img {
-              width: 100%;
-              height: 100%;
-              object-fit: cover;
-              border-radius: 4px;
-              border: 2px solid $accent-color;
-              box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-          }
-
-          .upload-btn.avatar-upload {
-              position: absolute;
-              bottom: 0;
-              left: 50%;
-              transform: translateX(-50%);
-              background: rgba(0, 0, 0, 0.6);
-              padding: 6px 8px;
-              border-radius: 50%;
-              cursor: pointer;
-              color: #fff;
-              font-size: 0.9rem;
-              z-index: 3;
-
-              i {
-                  margin: 0;
-              }
-          }
-      }
-  }*/
 }
 #characterCreateDiv .avatar-overlap {
   position: relative;
@@ -238,24 +228,6 @@ body {
   font-weight: 500;
   transition: color 0.2s ease-in-out;
 }
-#characterCreateDiv .ql-container {
-  background-color: #fff;
-  min-height: 200px;
-}
-#characterCreateDiv .ql-editor {
-  max-height: 200px;
-  padding: 12px;
-  color: #393E46;
-  overflow-y: auto;
-}
-#characterCreateDiv .ql-toolbar {
-  border-radius: 6px 6px 0 0;
-  background-color: #f8f8f8;
-}
-#characterCreateDiv .ql-toolbar svg,
-#characterCreateDiv .form-text {
-  fill: #EEEEEE;
-}
 #characterCreateDiv .form-text {
   color: #EEEEEE;
 }
@@ -263,4 +235,61 @@ body {
 #characterCreateDiv .banner-img {
   user-select: none;
   -webkit-user-drag: none;
+}
+
+#dashboardMain #characterSwap {
+  background-color: #EEEEEE;
+  color: #393E46;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  cursor: pointer;
+}
+#dashboardMain #characterSwap .dashboard-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+#dashboardMain #characterSwap .dashboard-avatar-wrapper {
+  width: 75px;
+  height: 75px;
+  position: relative;
+}
+#dashboardMain #characterSwap #swapArrows {
+  background-color: #d0d0d0;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+}
+#dashboardMain #characterSwap .online-dot {
+  position: absolute;
+  bottom: 0px;
+  right: 5px;
+  width: 15px;
+  height: 15px;
+  background-color: #00ADB5;
+  border: 2px solid white;
+  border-radius: 50%;
+}
+#dashboardMain #dashboardNav {
+  background-color: #EEEEEE;
+  color: #393E46;
+  border-radius: 3px;
+}
+#dashboardMain #dashboardNav .navCounter {
+  background-color: #d0d0d0;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+}
+#dashboardMain .fixed-icon {
+  width: 25px;
+  display: inline-block;
+  text-align: center;
 }

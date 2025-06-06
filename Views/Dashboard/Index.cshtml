@@ -1,27 +1,144 @@
-﻿@model List<CharacterModel>
+﻿@using Aetherium.Models.ViewModels
+@using Aetherium.Services
+@inject UserService _userService
+@model DashboardViewModel
+@{
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+@{
+    bool isLoggedIn = _userService != null;
+}
 
-<div class="container mt-4 text-light">
-    <h2>Your Characters</h2>
+<div class="row vh-100">
 
-    @if (!Model.Any())
-    {
-        <p>You haven't created any characters yet.</p>
-    }
-    else
-    {
-        <div class="row">
-            @foreach (var character in Model)
-            {
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow" style="background-color: #393E46; border: none;">
-                        <img src="@character.AvatarUrl" class="card-img-top" alt="@character.DisplayName" style="height: 200px; object-fit: cover;" />
-                        <div class="card-body">
-                            <h5 class="card-title">@character.DisplayName</h5>
-                            <p class="card-text">Created: @character.CreatedOn.ToShortDateString()</p>
+    <div class="row">
+        <div class="vh-100 col-12" id="dashboardMain">
+            <div class="row py-2 mb-2">
+                <h4>Welcome back, @Model.CurrentCharacter.DisplayName!</h4>
+            </div>
+            <hr style="background-color: #00ADB5; height: 3px; border: none; border-radius: 5px;" />
+            <div class="row mt-2 justify-content-around">
+                <div class="col-md-2 vh-100">
+                    <div id="characterSwap" class="shadow p-2 mb-3">
+                        <div class="dashboard-avatar-wrapper">
+                            <img class="dashboard-avatar" src="@Model.CurrentCharacter.AvatarUrl" />
+                            @if (isLoggedIn)
+                            {
+                                <span class="online-dot"></span>
+                            }
+                        </div>
+                        <div class="text-center">
+                            <p class="mb-0">@Model.CurrentCharacter.DisplayName</p>
+                            <p class="small mb-0 text-muted">Swap Characters</p>
+                        </div>
+                        <div>
+                            <div id="swapArrows">
+                                <i class="fa-solid fa-arrows-up-down"></i>
+                            </div>
                         </div>
                     </div>
+                    
+                    <div id="dashboardNav" class="shadow p-2 fullWidth">
+                        <ul class="list-unstyled mb-0">
+                            <li>
+                                <div class="d-flex justify-content-between align-items-center dashNavProfile p-2 pointerCursor">
+                                    <div>
+                                        <i class="fa-solid fa-user me-2 fixed-icon"></i>
+                                        Profile
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="d-flex justify-content-between align-items-center dashNavRequests p-2 pointerCursor">
+                                    <div>
+                                        <i class="fa-solid fa-users me-2 fixed-icon"></i>
+                                        Friends
+                                    </div>
+                                    <div id="requestCount" class="text-center navCounter">
+                                        0
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="d-flex justify-content-between align-items-center dashNavRequests p-2 pointerCursor">
+                                    <div>
+                                        <i class="fa-solid fa-user-plus me-2 fixed-icon"></i>
+                                        Friend Requests
+                                    </div>
+                                    <div id="requestCount" class="text-center navCounter">
+                                        0
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="d-flex justify-content-between align-items-center dashNavRequests p-2 pointerCursor">
+                                    <div>
+                                        <i class="fa-solid fa-heart me-2 fixed-icon"></i>
+                                        Relationships
+                                    </div>
+                                    <div id="requestCount" class="text-center navCounter">
+                                        0
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="d-flex justify-content-between align-items-center dashNavRequests p-2 pointerCursor">
+                                    <div>
+                                        <i class="fa-solid fa-message me-2 fixed-icon"></i>
+                                        Unread Messages
+                                    </div>
+                                    <div id="requestCount" class="text-center navCounter">
+                                        0
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="d-flex justify-content-between align-items-center dashNavRequests p-2 pointerCursor">
+                                    <div>
+                                        <i class="fa-solid fa-satellite-dish me-2 fixed-icon"></i>
+                                        Following
+                                    </div>
+                                    <div id="requestCount" class="text-center navCounter">
+                                        0
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-            }
+
+                <div class="col-md-7 vh-100">
+                    <div style="background-color: #eee; border-radius: 8px; color: black;" class="vh-100 shadow p-1">
+                        Width test for middle column
+                        <ul>
+                            <li>Status feed (includes friends and self)</li>
+                            <li>Support for text, image, or YouTube embeds</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 vh-100 ">
+                    <div style="background-color: #eee; border-radius: 8px; color: black; height: 50vh;" class="shadow p-1">
+                        Width test for right column
+                        <ul>
+                            <li>  Site-wide chat box (coming later)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>            
         </div>
-    }
+    </div>
 </div>
+@* 
+@foreach (var character in Model)
+{
+    <div class="col-md-4 mb-4">
+        <div class="card shadow" style="background-color: #393E46; color: #eee;">
+            <img src="@character.AvatarUrl" class="card-img-top" alt="@character.DisplayName" style="height: 200px; object-fit: cover;" />
+            <div class="card-body">
+                <h5 class="card-title">@character.DisplayName</h5>
+                <p class="card-text">Created: @character.CreatedOn.ToShortDateString()</p>
+            </div>
+        </div>
+    </div>
+} 
+*@
