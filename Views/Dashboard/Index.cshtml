@@ -109,15 +109,8 @@
                     </div>
                 </div>
 
-                <div class="col-md-7 vh-100" id="mainDashboardCol">
-                    <div style="background-color: #eee; border-radius: 8px; color: black;" class="shadow p-2 mb-2">
-                        Width test for middle column
-                        <ul>
-                            <li>Status feed (includes friends and self)</li>
-                            <li>Support for text, image, or YouTube embeds</li>
-                        </ul>
-                    </div>
-                    <div id="statusPostApp" class="shadow p-2" style="background-color: #eee; border-radius: 8px;">
+                <div class="col-md-5 vh-100" id="mainDashboardCol">
+                    <div id="statusPostApp" class="shadow p-2" style="border-radius: 8px;">
                         @if (TempData["StatusError"] != null)
                         {
                             <div class="alert alert-danger">@TempData["StatusError"]</div>
@@ -126,7 +119,7 @@
                         <form method="post" asp-controller="Dashboard" asp-action="CreateStatus">
                             @Html.AntiForgeryToken()
                             <status-post-editor></status-post-editor>
-                            <div class="row mt-2 mb-2">
+                            <div class="row mb-2 mt-2">
                                 <div class="col-6">
                                     <label>Who can see this?</label>
                                     <select name="PrivacyLevel" class="form-select mb-2">

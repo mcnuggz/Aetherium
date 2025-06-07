@@ -345,6 +345,11 @@ body {
     }
 
     #mainDashboardCol {
+        #statusPostApp{
+            background-color: $text-color;
+            color: $card-bg;
+        } 
+
         .ql-editor {
             max-height: 100px;
             padding: 12px;
@@ -352,7 +357,7 @@ body {
             overflow-y: auto;
         }
 
-        label{
+        label {
             color: $card-bg;
         }
     }

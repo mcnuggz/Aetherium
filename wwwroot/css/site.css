@@ -289,6 +289,10 @@ body {
   display: inline-block;
   text-align: center;
 }
+#dashboardMain #mainDashboardCol #statusPostApp {
+  background-color: #EEEEEE;
+  color: #393E46;
+}
 #dashboardMain #mainDashboardCol .ql-editor {
   max-height: 100px;
   padding: 12px;
