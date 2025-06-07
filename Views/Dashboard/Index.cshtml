@@ -8,7 +8,7 @@
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
 }
 @{
-    bool isLoggedIn = _userService != null;
+    bool isLoggedIn = _userService.GetUserId() != null;
 }
 
 <div class="row vh-100">
