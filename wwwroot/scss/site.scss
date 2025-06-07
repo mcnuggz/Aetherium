@@ -47,28 +47,6 @@ body {
     cursor: pointer;
 }
 
-.ql-container {
-    background-color: #fff;
-    min-height: 200px;
-}
-
-.ql-editor {
-    max-height: 200px;
-    padding: 12px;
-    color: $card-bg;
-    overflow-y: auto;
-}
-
-.ql-toolbar {
-    border-radius: 6px 6px 0 0;
-    background-color: #f8f8f8;
-}
-
-.ql-toolbar svg,
-.form-text {
-    fill: $text-color;
-}
-
 #landingPage {
     .nav-tabs {
         background-color: $card-bg;
@@ -154,7 +132,7 @@ body {
 
     .avatar-overlap {
         position: relative;
-        margin-top: -60px; 
+        margin-top: -60px;
         z-index: 10;
     }
 
@@ -184,9 +162,31 @@ body {
         cursor: pointer;
         z-index: 2;
 
-        i{
-           margin: 0;
+        i {
+            margin: 0;
         }
+    }
+
+    .ql-container {
+        background-color: #fff;
+        min-height: 200px;
+    }
+
+    .ql-editor {
+        max-height: 200px;
+        padding: 12px;
+        color: $card-bg;
+        overflow-y: auto;
+    }
+
+    .ql-toolbar {
+        border-radius: 6px 6px 0 0;
+        background-color: #f8f8f8;
+    }
+
+    .ql-toolbar svg,
+    .form-text {
+        fill: $text-color;
     }
 
     .profile-header {
@@ -268,8 +268,6 @@ body {
         transition: color 0.2s ease-in-out;
     }
 
-
-
     .form-text {
         color: $text-color;
     }
@@ -345,4 +343,18 @@ body {
         display: inline-block;
         text-align: center;
     }
+
+    #mainDashboardCol {
+        .ql-editor {
+            max-height: 100px;
+            padding: 12px;
+            color: $card-bg;
+            overflow-y: auto;
+        }
+
+        label{
+            color: $card-bg;
+        }
+    }
 }
+

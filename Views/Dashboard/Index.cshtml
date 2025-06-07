@@ -1,4 +1,6 @@
-﻿@using Aetherium.Models.ViewModels
+﻿@using Aetherium.Enums
+@using Aetherium.Helpers
+@using Aetherium.Models.ViewModels
 @using Aetherium.Services
 @inject UserService _userService
 @model DashboardViewModel
@@ -18,7 +20,7 @@
             </div>
             <hr style="background-color: #00ADB5; height: 3px; border: none; border-radius: 5px;" />
             <div class="row mt-2 justify-content-around">
-                <div class="col-md-2 vh-100">
+                <div class="col-md-2 vh-100" id="leftDashboardCol">
                     <div id="characterSwap" class="shadow p-2 mb-3">
                         <div class="dashboard-avatar-wrapper">
                             <img class="dashboard-avatar" src="@Model.CurrentCharacter.AvatarUrl" />
@@ -107,15 +109,54 @@
                     </div>
                 </div>
 
-                <div class="col-md-7 vh-100">
-                    <div style="background-color: #eee; border-radius: 8px; color: black;" class="vh-100 shadow p-1">
+                <div class="col-md-7 vh-100" id="mainDashboardCol">
+                    <div style="background-color: #eee; border-radius: 8px; color: black;" class="shadow p-2 mb-2">
                         Width test for middle column
                         <ul>
                             <li>Status feed (includes friends and self)</li>
                             <li>Support for text, image, or YouTube embeds</li>
                         </ul>
                     </div>
+                    <div id="statusPostApp" class="shadow p-2" style="background-color: #eee; border-radius: 8px;">
+                        @if (TempData["StatusError"] != null)
+                        {
+                            <div class="alert alert-danger">@TempData["StatusError"]</div>
+                        }
+
+                        <form method="post" asp-controller="Dashboard" asp-action="CreateStatus">
+                            @Html.AntiForgeryToken()
+                            <status-post-editor></status-post-editor>
+                            <div class="row mt-2 mb-2">
+                                <div class="col-6">
+                                    <label>Who can see this?</label>
+                                    <select name="PrivacyLevel" class="form-select mb-2">
+                                        @foreach (var (value, display) in EnumExtensions.GetEnumDisplayValues<PostPrivacyLevelEnum>())
+                                        {
+                                            <option value="@value">@display</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <div id="relationshipTypeSelect" style="display:none;">
+                                        <label>Select Relationship:</label>
+                                        <select name="AllowedRelationshipType" class="form-select mb-2">
+                                            @foreach (var (value, display) in EnumExtensions.GetEnumDisplayValues<RelationshipTypeEnum>())
+                                            {
+                                                <option value="@value">@display</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary mt-2">Post</button>
+                        </form>
+                    </div>
+                    <div id="timeline">
+
+                    </div>
                 </div>
+
                 <div class="col-md-3 vh-100 ">
                     <div style="background-color: #eee; border-radius: 8px; color: black; height: 50vh;" class="shadow p-1">
                         Width test for right column
@@ -128,6 +169,96 @@
         </div>
     </div>
 </div>
+<script>
+    window.onload = function () {
+        const privacySelect = document.querySelector('[name="PrivacyLevel"]');
+        const relationshipSelect = document.getElementById('relationshipTypeSelect');
+
+        if (privacySelect && relationshipSelect) {
+            // Set initial state
+            relationshipSelect.style.display = (privacySelect.value === "3") ? "block" : "none";
+
+            // Listen for changes
+            privacySelect.addEventListener('change', function () {
+                relationshipSelect.style.display = (this.value === "3") ? "block" : "none";
+            });
+        }
+    };
+</script>
+@section Scripts {
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+
+        const StatusPostEditor = {
+            template: `
+                <div>
+                    <div ref="editor" style="height: 100px;"></div>
+                    <input type="hidden" name="PostContent" :value="content" />
+                </div>
+            `,
+            setup() {
+                const editor = ref(null);
+                const content = ref('');
+
+                onMounted(() => {
+                    const quill = new Quill(editor.value, {
+                        theme: 'snow',
+                        placeholder: "What's on your mind?",
+                        modules: {
+                            toolbar: {
+                                container: [
+                                    [{ header: [1, 2, false] }],
+                                    ['bold', 'italic', 'underline', 'link'],
+                                    ['image']
+                                ],
+                                handlers: {
+                                    image: function () {
+                                        const input = document.createElement('input');
+                                        input.setAttribute('type', 'file');
+                                        input.setAttribute('accept', 'image/*');
+                                        input.click();
+
+                                        input.onchange = async () => {
+                                            const file = input.files[0];
+                                            const formData = new FormData();
+                                            formData.append('image', file);
+
+                                            const response = await fetch('/api/upload/image', {
+                                                method: 'POST',
+                                                body: formData
+                                            });
+
+                                            const result = await response.json();
+                                            if (result.imageUrl) {
+                                                const range = quill.getSelection();
+                                                quill.insertEmbed(range.index, 'image', result.imageUrl);
+                                            }
+                                        };
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    quill.on('text-change', () => {
+                        content.value = quill.root.innerHTML;
+                    });
+                    editor.value.addEventListener('click', () => {
+                        quill.focus();
+                    });
+                });
+
+                return { editor, content };
+            }
+        };
+
+        createApp({
+            components: {
+                StatusPostEditor
+            }
+        }).mount('#statusPostApp');
+    </script>
+}
 @* 
 @foreach (var character in Model)
 {

@@ -34,28 +34,6 @@ body {
   cursor: pointer;
 }
 
-.ql-container {
-  background-color: #fff;
-  min-height: 200px;
-}
-
-.ql-editor {
-  max-height: 200px;
-  padding: 12px;
-  color: #393E46;
-  overflow-y: auto;
-}
-
-.ql-toolbar {
-  border-radius: 6px 6px 0 0;
-  background-color: #f8f8f8;
-}
-
-.ql-toolbar svg,
-.form-text {
-  fill: #EEEEEE;
-}
-
 #landingPage .nav-tabs {
   background-color: #393E46;
   border-bottom: none;
@@ -158,6 +136,24 @@ body {
 }
 #characterCreateDiv .upload-btn.avatar-upload i {
   margin: 0;
+}
+#characterCreateDiv .ql-container {
+  background-color: #fff;
+  min-height: 200px;
+}
+#characterCreateDiv .ql-editor {
+  max-height: 200px;
+  padding: 12px;
+  color: #393E46;
+  overflow-y: auto;
+}
+#characterCreateDiv .ql-toolbar {
+  border-radius: 6px 6px 0 0;
+  background-color: #f8f8f8;
+}
+#characterCreateDiv .ql-toolbar svg,
+#characterCreateDiv .form-text {
+  fill: #EEEEEE;
 }
 #characterCreateDiv .profile-header {
   position: relative;
@@ -292,4 +288,13 @@ body {
   width: 25px;
   display: inline-block;
   text-align: center;
+}
+#dashboardMain #mainDashboardCol .ql-editor {
+  max-height: 100px;
+  padding: 12px;
+  color: #393E46;
+  overflow-y: auto;
+}
+#dashboardMain #mainDashboardCol label {
+  color: #393E46;
 }

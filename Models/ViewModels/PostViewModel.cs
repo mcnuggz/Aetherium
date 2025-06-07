@@ -1,13 +1,10 @@
 ﻿using Aetherium.Enums;
 
-namespace Aetherium.Models
+namespace Aetherium.Models.ViewModels
 {
-    public class PostModel
+    public class PostViewModel
     {
-        public int Id { get; set; }
-        public int CharacterId { get; set; }
         public string PostContent { get; set; }
-        public DateTime CreatedOn { get; set; }
         public PostPrivacyLevelEnum PrivacyLevel { get; set; }
         public RelationshipTypeEnum? AllowedRelationshipType { get; set; }
     }
