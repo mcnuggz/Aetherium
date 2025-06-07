@@ -10,7 +10,7 @@ namespace Aetherium.Enums
         [Display(Name = "Friends Only")]
         Private = 1,
 
-        [Display(Name = "Private")]
+        [Display(Name = "Only Me")]
         Personal = 2,
 
         [Display(Name = "Specific Relationship")]
