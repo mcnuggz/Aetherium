@@ -1,5 +1,6 @@
 ﻿using Aetherium.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace Aetherium.Data
 {
@@ -16,19 +17,19 @@ namespace Aetherium.Data
         public DbSet<AlbumModel> Albums { get; set; }
         public DbSet<PhotoModel> Photos { get; set; }
         public DbSet<CharacterRelationshipModel> CharacterRelationships { get; set; }
+        public DbSet<CommentModel> Comments { get; set; }
+        public DbSet<ReactionModel> Reactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            // User → Characters
             builder.Entity<CharacterModel>()
                 .HasOne(c => c.UserAccount)
                 .WithMany(u => u.Characters)
                 .HasForeignKey(c => c.UserAccountId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Character ↔ Character Relationship (CharacterA & CharacterB)
             builder.Entity<CharacterRelationshipModel>()
                 .HasOne(r => r.CharacterA)
                 .WithMany(c => c.RelationshipsInitiated)
@@ -41,21 +42,18 @@ namespace Aetherium.Data
                 .HasForeignKey(r => r.CharacterBId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Character → Albums (Cascade allowed)
             builder.Entity<AlbumModel>()
                 .HasOne(a => a.Character)
                 .WithMany(c => c.Albums)
                 .HasForeignKey(a => a.CharacterId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Album → Photos (SetNull optional)
             builder.Entity<PhotoModel>()
                 .HasOne(p => p.Album)
                 .WithMany(a => a.Photos)
                 .HasForeignKey(p => p.AlbumId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // Character → Photos (Restrict or SetNull)
             builder.Entity<PhotoModel>()
                 .HasOne(p => p.Character)
                 .WithMany(c => c.Photos)
@@ -65,6 +63,12 @@ namespace Aetherium.Data
             builder.Entity<CharacterModel>()
                 .HasIndex(c => c.CustomUrl)
                 .IsUnique();
+
+            builder.Entity<PostModel>()
+                .HasOne(p => p.Character)
+                .WithMany(c => c.Posts)
+                .HasForeignKey(p => p.CharacterId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

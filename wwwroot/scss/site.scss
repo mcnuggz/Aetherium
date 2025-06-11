@@ -355,6 +355,7 @@ body {
             padding: 12px;
             color: $card-bg;
             overflow-y: auto;
+            transition: height 0.3s ease;
         }
 
         label {

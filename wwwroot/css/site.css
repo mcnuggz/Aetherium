@@ -298,6 +298,7 @@ body {
   padding: 12px;
   color: #393E46;
   overflow-y: auto;
+  transition: height 0.3s ease;
 }
 #dashboardMain #mainDashboardCol label {
   color: #393E46;

@@ -33,6 +33,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<PasswordService>();
+builder.Services.AddScoped<UploadService>();
 
 var app = builder.Build();
 

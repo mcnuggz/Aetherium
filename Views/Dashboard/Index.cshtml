@@ -18,9 +18,8 @@
             <div class="row py-2 mb-2">
                 <h4>Welcome back, @Model.CurrentCharacter.DisplayName!</h4>
             </div>
-            <hr style="background-color: #00ADB5; height: 3px; border: none; border-radius: 5px;" />
             <div class="row mt-2 justify-content-around">
-                <div class="col-md-2 vh-100" id="leftDashboardCol">
+                <div class="col-md-2 mb-sm-4" id="leftDashboardCol">
                     <div id="characterSwap" class="shadow p-2 mb-3">
                         <div class="dashboard-avatar-wrapper">
                             <img class="dashboard-avatar" src="@Model.CurrentCharacter.AvatarUrl" />
@@ -108,17 +107,26 @@
                         </ul>
                     </div>
                 </div>
-
-                <div class="col-md-6 vh-100" id="mainDashboardCol">
+                <div class="col-md-6 mb-sm-4" id="mainDashboardCol">
                     <div id="statusPostApp" class="shadow p-2" style="border-radius: 8px;">
                         @if (TempData["StatusError"] != null)
                         {
-                            <div class="alert alert-danger">@TempData["StatusError"]</div>
+                            var message = TempData["StatusError"].ToString();
+                            if (message.Contains("too large"))
+                            {
+                                <div class="alert alert-danger">
+                                    @Html.Raw(message + " <a href='https://ezgif.com/resize' target='_blank'>Click here to resize</a>.")
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-danger">@message</div>
+                            }
                         }
-
+                        
                         <form method="post" asp-controller="Dashboard" asp-action="CreateStatus">
                             @Html.AntiForgeryToken()
-                            <status-post-editor></status-post-editor>
+                            <quill-editor name="PostContent" height="100px" placeholder="What's on your mind?"></quill-editor>
                             <div class="row mb-2 mt-2">
                                 <div class="col-6">
                                     <label>Who can see this?</label>
@@ -145,8 +153,45 @@
                             <button type="submit" class="btn btn-primary mt-2">Post</button>
                         </form>
                     </div>
-                    <div id="timeline">
-
+                    <div id="timeline" class="mt-2">
+                        @foreach (var post in Model.Posts)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-header d-flex align-items-center">
+                                    <img src="@post.AvatarUrl" class="rounded-circle me-2" style="width:40px;height:40px;" />
+                                    <strong>@post.DisplayName</strong>
+                                    <span class="ms-auto text-muted" style="font-size: 0.9em;">@post.CreatedOn.ToLocalTime().ToString("g")</span>
+                                </div>
+                                <div class="card-body">
+                                    @Html.Raw(post.PostContent)
+                                </div>
+                                <div class="card-footer">
+                                    <div class="mb-2">
+                                        @post.Comments.Count() comments
+                                    </div>
+                                    <div>
+                                        <form method="post" asp-action="AddComment" asp-controller="Dashboard">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="PostId" value="@post.PostId" />
+                                            <quill-editor name="Content" height="50px" placeholder="Write a comment..."></quill-editor>
+                                            <button type="submit" class="btn btn-sm btn-primary mt-2">Comment</button>
+                                        </form>
+                                    </div>
+                                    <div class="shadow p-2 mt-2">
+                                        @foreach (var comment in post.Comments.OrderBy(c => c.CreatedOn))
+                                        {
+                                            <div class="card-header d-flex align-items-center" style="background-color: #393E46; color: #eee;">
+                                                <img src="@post.AvatarUrl" class="rounded-circle me-2" style="width:30px;height:30px;" />
+                                                <strong>@post.DisplayName</strong>
+                                            </div>
+                                            <div class="mb-2 border-top p-2">
+                                                @Html.Raw(comment.Content)
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
 
@@ -163,90 +208,15 @@
         const relationshipSelect = document.getElementById('relationshipTypeSelect');
 
         if (privacySelect && relationshipSelect) {
-            // Set initial state
             relationshipSelect.style.display = (privacySelect.value === "3") ? "block" : "none";
 
-            // Listen for changes
             privacySelect.addEventListener('change', function () {
                 relationshipSelect.style.display = (this.value === "3") ? "block" : "none";
             });
         }
     };
 </script>
-@section Scripts {
-    <script>
-        const { createApp, ref, onMounted } = Vue;
 
-        const StatusPostEditor = {
-            template: `
-                <div>
-                    <div ref="editor" style="height: 100px;"></div>
-                    <input type="hidden" name="PostContent" :value="content" />
-                </div>
-            `,
-            setup() {
-                const editor = ref(null);
-                const content = ref('');
-
-                onMounted(() => {
-                    const quill = new Quill(editor.value, {
-                        theme: 'snow',
-                        placeholder: "What's on your mind?",
-                        modules: {
-                            toolbar: {
-                                container: [
-                                    [{ header: [1, 2, false] }],
-                                    ['bold', 'italic', 'underline', 'link'],
-                                    ['image']
-                                ],
-                                handlers: {
-                                    image: function () {
-                                        const input = document.createElement('input');
-                                        input.setAttribute('type', 'file');
-                                        input.setAttribute('accept', 'image/*');
-                                        input.click();
-
-                                        input.onchange = async () => {
-                                            const file = input.files[0];
-                                            const formData = new FormData();
-                                            formData.append('image', file);
-
-                                            const response = await fetch('/api/upload/image', {
-                                                method: 'POST',
-                                                body: formData
-                                            });
-
-                                            const result = await response.json();
-                                            if (result.imageUrl) {
-                                                const range = quill.getSelection();
-                                                quill.insertEmbed(range.index, 'image', result.imageUrl);
-                                            }
-                                        };
-                                    }
-                                }
-                            }
-                        }
-                    });
-
-                    quill.on('text-change', () => {
-                        content.value = quill.root.innerHTML;
-                    });
-                    editor.value.addEventListener('click', () => {
-                        quill.focus();
-                    });
-                });
-
-                return { editor, content };
-            }
-        };
-
-        createApp({
-            components: {
-                StatusPostEditor
-            }
-        }).mount('#statusPostApp');
-    </script>
-}
 @* 
 @foreach (var character in Model)
 {

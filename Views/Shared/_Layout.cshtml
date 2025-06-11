@@ -35,7 +35,7 @@
         </nav>
     </header>
 
-    <main class="flex-grow-1">
+    <main class="flex-grow-1" id="layoutMain">
         <div class="container pb-3">
             @if (showBanner)
             {
@@ -53,6 +53,15 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="~/js/quill-editor.js"></script>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const app = Vue.createApp({});
+            app.component('quill-editor', QuillEditor);
+            app.mount("#layoutMain");
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -4,6 +4,7 @@ using Aetherium.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Aetherium.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250611041808_AddedNewModelsForTimelinePosts")]
+    partial class AddedNewModelsForTimelinePosts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -199,7 +202,7 @@ namespace Aetherium.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("CommentModel");
                 });
 
             modelBuilder.Entity("Aetherium.Models.PhotoModel", b =>
@@ -290,7 +293,7 @@ namespace Aetherium.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Reactions");
+                    b.ToTable("ReactionModel");
                 });
 
             modelBuilder.Entity("Aetherium.Models.UserModel", b =>

@@ -10,5 +10,9 @@ namespace Aetherium.Models
         public DateTime CreatedOn { get; set; }
         public PostPrivacyLevelEnum PrivacyLevel { get; set; }
         public RelationshipTypeEnum? AllowedRelationshipType { get; set; }
+        public CharacterModel Character { get; set; } = null!;
+
+        public ICollection<CommentModel> Comments { get; set; } = new List<CommentModel>();
+        public ICollection<ReactionModel> Reactions { get; set; } = new List<ReactionModel>();
     }
 }
